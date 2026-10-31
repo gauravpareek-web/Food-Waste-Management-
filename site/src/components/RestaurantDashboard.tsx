@@ -31,9 +31,45 @@ import {
   ArrowRight,
   TrendingUp,
   Store,
-  RefreshCw
+  RefreshCw,
+  AlertTriangle,
+  Timer,
+  Info,
+  Flame,
+  Snowflake
 } from 'lucide-react';
 import { UserProfile } from '../types';
+
+export interface DonationItem {
+  id: string;
+  title: string;
+  description: string;
+  itemsList: string[];
+  quantity: string;
+  servings: string;
+  category: string;
+  status: 'Available' | 'Claimed' | 'Pickup Pending' | 'Delivered' | 'Expiring Soon';
+  statusColor: string;
+  pickupDate: string;
+  pickupSlot: string;
+  prepDate: string;
+  prepTime: string;
+  activeDuration: string;
+  expiresAt: string;
+  expiryHoursLeft: number;
+  totalShelfLifeHours: number;
+  expiryPercent: number;
+  safeUntil: string;
+  packaging: string;
+  storage: string;
+  storageTemp: string;
+  allergens: string;
+  dietary: string[];
+  image: string;
+  distance: string;
+  claimedBy: string | null;
+  fssaiCompliant: boolean;
+}
 
 interface RestaurantDashboardProps {
   user?: UserProfile;
@@ -76,10 +112,16 @@ export default function RestaurantDashboard({
   const [formCategory, setFormCategory] = useState('Cooked Meals');
   const [formDescription, setFormDescription] = useState('');
   const [formQuantity, setFormQuantity] = useState('');
-  const [formUnit, setFormUnit] = useState('kg');
+  const [formUnit, setFormUnit] = useState('portions');
+  const [formServings, setFormServings] = useState('Feeds ~35 adults');
+  const [formItemsList, setFormItemsList] = useState('Fresh Rice, Lentil Curry, Mixed Veg, Flatbreads');
   const [formPrepDate, setFormPrepDate] = useState('2026-10-31');
-  const [formPickupTime, setFormPickupTime] = useState('10:00 AM - 12:00 PM');
-  const [formStorage, setFormStorage] = useState('Refrigerated (2-4°C)');
+  const [formPrepTime, setFormPrepTime] = useState('11:30 AM');
+  const [formShelfLifeHours, setFormShelfLifeHours] = useState('6');
+  const [formPickupTime, setFormPickupTime] = useState('12:00 PM - 02:30 PM');
+  const [formPackaging, setFormPackaging] = useState('Sealed Food-Grade Containers');
+  const [formStorage, setFormStorage] = useState('Hot-held (>65°C)');
+  const [formAllergens, setFormAllergens] = useState('None / Dairy mentioned');
   const [formAddress, setFormAddress] = useState('125 Palm Street, Palm Beach, FL');
   const [formSubmittedToast, setFormSubmittedToast] = useState(false);
 
@@ -90,137 +132,126 @@ export default function RestaurantDashboard({
   const [settingsSavedToast, setSettingsSavedToast] = useState(false);
 
   // Data: Donations List
-  const [donationsList, setDonationsList] = useState([
+  const [donationsList, setDonationsList] = useState<DonationItem[]>([
     {
       id: 'DON-101',
       title: 'Fresh Vegetables Box',
+      description: 'Assorted farm-fresh organic vegetables packed directly from kitchen stock, pre-washed, unchopped, and temperature-controlled.',
+      itemsList: ['Organic Spinach (4 kg)', 'Carrots & Cucumbers (5 kg)', 'Bell Peppers (3 kg)', 'Fresh Tomatoes (3 kg)'],
       quantity: '15 kg',
+      servings: 'Feeds ~45 people',
       category: 'Vegetables',
       status: 'Available',
       statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
       pickupDate: 'Apr 27, 2026',
+      pickupSlot: '10:00 AM - 12:00 PM',
       prepDate: 'Apr 27, 2026',
+      prepTime: '09:00 AM',
+      activeDuration: '1h 45m active',
+      expiresAt: 'Apr 28, 2026 • 06:00 PM',
+      expiryHoursLeft: 18,
+      totalShelfLifeHours: 24,
+      expiryPercent: 25,
       safeUntil: 'Apr 28, 2026',
+      packaging: 'Moisture-controlled ventilated food crates',
       storage: 'Refrigerated (2-4°C)',
+      storageTemp: '3.2°C logged',
       allergens: 'None',
-      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80',
+      dietary: ['100% Vegetarian', 'Raw Fresh Produce', 'Gluten-Free'],
+      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
       distance: '4.2 km',
       claimedBy: null,
+      fssaiCompliant: true,
     },
     {
       id: 'DON-102',
-      title: 'Cooked Meals (Veg)',
+      title: 'Cooked Meals (Paneer Curry & Basmati Rice)',
+      description: 'Freshly prepared hot banquet lunch, untouched in heated steam pans, strictly unserved surplus meeting FSSAI surplus-food safety standards.',
+      itemsList: ['Shahi Paneer Curry (15 L)', 'Steamed Jeera Basmati Rice (20 kg)', 'Whole Wheat Rotis (70 pcs)', 'Fresh Cucumber Salad'],
       quantity: '35 portions',
-      category: 'Meals',
+      servings: 'Feeds ~35 adults',
+      category: 'Cooked Meals',
       status: 'Claimed',
       statusColor: 'bg-blue-100 text-blue-800 border-blue-200',
-      pickupDate: 'Apr 26, 2026',
-      prepDate: 'Apr 26, 2026',
-      safeUntil: 'Apr 26, 2026',
+      pickupDate: 'Apr 27, 2026',
+      pickupSlot: '01:30 PM - 03:00 PM',
+      prepDate: 'Apr 27, 2026',
+      prepTime: '11:15 AM',
+      activeDuration: '2h 10m active',
+      expiresAt: 'Today at 05:30 PM',
+      expiryHoursLeft: 3.5,
+      totalShelfLifeHours: 6,
+      expiryPercent: 58,
+      safeUntil: 'Apr 27, 2026 (5:30 PM)',
+      packaging: 'Sealed food-grade stainless thermal containers',
       storage: 'Hot-held (>65°C)',
-      allergens: 'Dairy (Paneer)',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80',
+      storageTemp: '68°C verified',
+      allergens: 'Dairy (Paneer & Butter)',
+      dietary: ['Vegetarian', 'Nut-Free', 'Fresh Cooked'],
+      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
       distance: '2.5 km',
       claimedBy: 'Hope Foundation',
+      fssaiCompliant: true,
     },
     {
       id: 'DON-103',
-      title: 'Bakery Items',
+      title: 'Artisan Bakery & Morning Breads',
+      description: 'Same-day baked artisan sourdough loaves, baguettes, and dinner rolls from morning bake cycle, properly wrapped in parchment bags.',
+      itemsList: ['Sourdough Loaves (6)', 'Whole Grain Baguettes (8)', 'Multigrain Dinner Rolls (40 pcs)'],
       quantity: '10 boxes',
+      servings: 'Feeds ~50-60 people',
       category: 'Bakery',
       status: 'Pickup Pending',
       statusColor: 'bg-amber-100 text-amber-800 border-amber-200',
-      pickupDate: 'Apr 25, 2026',
-      prepDate: 'Apr 25, 2026',
-      safeUntil: 'Apr 27, 2026',
+      pickupDate: 'Apr 27, 2026',
+      pickupSlot: '04:00 PM - 06:00 PM',
+      prepDate: 'Apr 27, 2026',
+      prepTime: '07:30 AM',
+      activeDuration: '5h 15m active',
+      expiresAt: 'Apr 28, 2026 • 12:00 PM',
+      expiryHoursLeft: 22,
+      totalShelfLifeHours: 30,
+      expiryPercent: 30,
+      safeUntil: 'Apr 28, 2026',
+      packaging: 'Food-safe kraft paper bags & sealed cartons',
       storage: 'Dry Room Temp',
-      allergens: 'Gluten',
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=80',
+      storageTemp: '22°C ambient',
+      allergens: 'Gluten (Wheat)',
+      dietary: ['Vegetarian', 'Eggless', 'No Preservatives'],
+      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
       distance: '6.7 km',
       claimedBy: 'Community Care Shelter',
+      fssaiCompliant: true,
     },
     {
       id: 'DON-104',
-      title: 'Fresh Fruits',
+      title: 'Fresh Seasonal Fruits Pack',
+      description: 'Whole unpeeled fresh apples, bananas, and oranges, sorted and inspected for zero bruising, high nutrition for shelter children.',
+      itemsList: ['Sweet Oranges (3 kg)', 'Shimla Apples (3 kg)', 'Ripe Bananas (2 dozen)'],
       quantity: '8 kg',
+      servings: 'Feeds ~25 people',
       category: 'Fruits',
       status: 'Available',
       statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-      pickupDate: 'Apr 24, 2026',
-      prepDate: 'Apr 24, 2026',
-      safeUntil: 'Apr 26, 2026',
+      pickupDate: 'Apr 27, 2026',
+      pickupSlot: '11:00 AM - 01:00 PM',
+      prepDate: 'Apr 27, 2026',
+      prepTime: '08:45 AM',
+      activeDuration: '3h 30m active',
+      expiresAt: 'Apr 29, 2026 • 08:00 PM',
+      expiryHoursLeft: 48,
+      totalShelfLifeHours: 72,
+      expiryPercent: 15,
+      safeUntil: 'Apr 29, 2026',
+      packaging: 'Cushioned ventilated fruit crates',
       storage: 'Cool Ambient',
+      storageTemp: '18°C ambient',
       allergens: 'None',
-      image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=400&q=80',
+      dietary: ['100% Vegan', 'Raw Fruit', 'Gluten-Free'],
+      image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80',
       distance: '3.8 km',
       claimedBy: null,
-    },
-  ]);
-
-  // Data: Donation Requests
-  const [requestsList, setRequestsList] = useState([
-    {
-      id: 'REQ-01',
-      org: 'Hope Foundation',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-      needs: 'Needs 5 kg vegetables',
-      date: 'Apr 27, 2026',
-      distance: '4.2 km',
-      status: 'pending',
-    },
-    {
-      id: 'REQ-02',
-      org: 'Green Life NGO',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-      needs: 'Needs 10 kg cooked meals',
-      date: 'Apr 26, 2026',
-      distance: '6.8 km',
-      status: 'pending',
-    },
-    {
-      id: 'REQ-03',
-      org: 'Community Care',
-      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80',
-      needs: 'Needs 20 portions',
-      date: 'Apr 25, 2026',
-      distance: '8.1 km',
-      status: 'pending',
-    },
-  ]);
-
-  // Data: Notifications
-  const [notificationsList] = useState([
-    {
-      id: 'N-1',
-      type: 'claimed',
-      title: 'Your donation has been claimed',
-      desc: 'Hope Foundation claimed your Fresh Vegetables Box',
-      time: '2 hours ago',
-      color: 'bg-emerald-500',
-    },
-    {
-      id: 'N-2',
-      type: 'scheduled',
-      title: 'Pickup scheduled',
-      desc: 'Volunteer Rohit Sharma will pick up your donation',
-      time: '4 hours ago',
-      color: 'bg-blue-500',
-    },
-    {
-      id: 'N-3',
-      type: 'request',
-      title: 'New request received',
-      desc: 'Green Life NGO requested 10 kg cooked meals',
-      time: '6 hours ago',
-      color: 'bg-amber-500',
-    },
-    {
-      id: 'N-4',
-      type: 'delivered',
-      title: 'Donation delivered',
-      desc: 'Your donation has been successfully delivered to shelter',
-      time: '1 day ago',
-      color: 'bg-emerald-600',
+      fssaiCompliant: true,
     },
   ]);
 
@@ -229,21 +260,48 @@ export default function RestaurantDashboard({
     e.preventDefault();
     if (!formFoodName || !formQuantity) return;
 
-    const newDonation = {
+    const shelfLifeNum = parseFloat(formShelfLifeHours) || 6;
+    const items = formItemsList
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const newDonation: DonationItem = {
       id: `DON-${Math.floor(100 + Math.random() * 900)}`,
       title: formFoodName,
+      description: formDescription || 'Fresh surplus food prepared in commercial kitchen under strict hygiene protocols.',
+      itemsList: items.length > 0 ? items : [formFoodName],
       quantity: `${formQuantity} ${formUnit}`,
+      servings: formServings || `Feeds ~${formQuantity} portions`,
       category: formCategory,
       status: 'Available',
       statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
       pickupDate: formPrepDate,
+      pickupSlot: formPickupTime,
       prepDate: formPrepDate,
-      safeUntil: 'Apr 29, 2026',
+      prepTime: formPrepTime || 'Just now',
+      activeDuration: 'Just listed (0m)',
+      expiresAt: `In ${shelfLifeNum} hours (${formPrepDate})`,
+      expiryHoursLeft: shelfLifeNum,
+      totalShelfLifeHours: shelfLifeNum,
+      expiryPercent: 5,
+      safeUntil: `Valid for ${shelfLifeNum} hours`,
+      packaging: formPackaging,
       storage: formStorage,
-      allergens: 'None reported',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80',
+      storageTemp: formStorage.includes('Hot') ? '>65°C maintained' : '2-4°C chilled',
+      allergens: formAllergens,
+      dietary: ['Verified Safe Surplus', 'FSSAI Compliant'],
+      image:
+        formCategory === 'Vegetables'
+          ? 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80'
+          : formCategory === 'Bakery'
+          ? 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80'
+          : formCategory === 'Fruits'
+          ? 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80'
+          : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
       distance: '0.0 km',
       claimedBy: null,
+      fssaiCompliant: true,
     };
 
     setDonationsList([newDonation, ...donationsList]);
@@ -706,26 +764,39 @@ export default function RestaurantDashboard({
                         <div
                           key={item.id}
                           onClick={() => setSelectedDonationDetail(item)}
-                          className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-stone-50 border border-stone-100 transition-colors cursor-pointer"
+                          className="flex items-center justify-between p-3 rounded-2xl hover:bg-stone-50 border border-stone-100 transition-all cursor-pointer group hover:shadow-xs"
                         >
                           <div className="flex items-center gap-3">
                             <img
                               src={item.image}
                               alt={item.title}
-                              className="w-11 h-11 rounded-xl object-cover"
+                              className="w-12 h-12 rounded-xl object-cover shrink-0"
                             />
-                            <div>
-                              <h5 className="font-bold text-xs text-stone-900">{item.title}</h5>
-                              <p className="text-[10px] text-stone-500 mt-0.5">
-                                {item.quantity} • {item.pickupDate}
-                              </p>
+                            <div className="min-w-0">
+                              <h5 className="font-bold text-xs text-stone-900 group-hover:text-[#0A3F2F] transition-colors truncate">
+                                {item.title}
+                              </h5>
+                              <div className="flex items-center gap-2 text-[10px] text-stone-500 mt-0.5">
+                                <span className="font-medium">{item.quantity}</span>
+                                <span>•</span>
+                                <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded">
+                                  <Clock className="w-2.5 h-2.5" />
+                                  {item.activeDuration}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${item.statusColor}`}
-                          >
-                            {item.status}
-                          </span>
+                          <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${item.statusColor}`}
+                            >
+                              {item.status}
+                            </span>
+                            <span className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200/60 px-1.5 py-0.2 rounded font-semibold flex items-center gap-1">
+                              <Timer className="w-2.5 h-2.5 text-amber-600" />
+                              Exp: {item.expiryHoursLeft}h left
+                            </span>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -828,15 +899,55 @@ export default function RestaurantDashboard({
 
                       <div>
                         <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                          Description *
+                          Description & Quality Note *
                         </label>
                         <textarea
-                          rows={3}
+                          rows={2}
                           value={formDescription}
                           onChange={(e) => setFormDescription(e.target.value)}
-                          placeholder="Describe the food, ingredients, temperature status, hygiene checks..."
+                          placeholder="Describe the food, unserved status, temperature checks..."
                           className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
                         />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                          Dishes / Included Items (Comma separated) *
+                        </label>
+                        <input
+                          type="text"
+                          value={formItemsList}
+                          onChange={(e) => setFormItemsList(e.target.value)}
+                          placeholder="e.g. Steamed Rice, Dal Tadka, Paneer Sabzi, Chapatis"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                            Estimated Servings
+                          </label>
+                          <input
+                            type="text"
+                            value={formServings}
+                            onChange={(e) => setFormServings(e.target.value)}
+                            placeholder="e.g. Feeds ~30 people"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                            Allergens / Dietary Info
+                          </label>
+                          <input
+                            type="text"
+                            value={formAllergens}
+                            onChange={(e) => setFormAllergens(e.target.value)}
+                            placeholder="e.g. Dairy, Gluten, None"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                          />
+                        </div>
                       </div>
 
                       {/* Upload Photo Dropzone */}
@@ -844,18 +955,18 @@ export default function RestaurantDashboard({
                         <label className="block text-xs font-semibold text-stone-700 mb-1.5">
                           Upload Food Image
                         </label>
-                        <div className="border-2 border-dashed border-stone-200 rounded-2xl p-6 text-center hover:border-[#F59E0B] transition-colors cursor-pointer bg-stone-50">
-                          <Upload className="w-8 h-8 text-stone-400 mx-auto mb-2" />
+                        <div className="border-2 border-dashed border-stone-200 rounded-2xl p-4 text-center hover:border-[#F59E0B] transition-colors cursor-pointer bg-stone-50">
+                          <Upload className="w-6 h-6 text-stone-400 mx-auto mb-1.5" />
                           <p className="text-xs font-semibold text-stone-700">Click to upload or drag and drop</p>
-                          <p className="text-[10px] text-stone-400 mt-0.5">PNG, JPG (Max 5MB)</p>
+                          <p className="text-[10px] text-stone-400">PNG, JPG (Max 5MB)</p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Right Column: Quantity & Pickup Details */}
+                    {/* Right Column: Quantity & Expiry / Pickup Details */}
                     <div className="space-y-4">
                       <h4 className="font-bold text-xs uppercase tracking-wider text-stone-400">
-                        Quantity & Pickup Details
+                        Expiry, Timing & Pickup Details
                       </h4>
 
                       <div className="grid grid-cols-2 gap-3">
@@ -881,52 +992,101 @@ export default function RestaurantDashboard({
                             onChange={(e) => setFormUnit(e.target.value)}
                             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:border-[#F59E0B]"
                           >
-                            <option value="kg">kg</option>
                             <option value="portions">portions</option>
+                            <option value="kg">kg</option>
                             <option value="boxes">boxes</option>
                             <option value="trays">trays</option>
                           </select>
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                          Preparation Date *
-                        </label>
-                        <input
-                          type="date"
-                          value={formPrepDate}
-                          onChange={(e) => setFormPrepDate(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
-                        />
+                      {/* Timing & Expiry Period */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5 flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5 text-stone-400" />
+                            Cooked / Prep Time *
+                          </label>
+                          <input
+                            type="text"
+                            value={formPrepTime}
+                            onChange={(e) => setFormPrepTime(e.target.value)}
+                            placeholder="e.g. 11:30 AM"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5 flex items-center gap-1">
+                            <Timer className="w-3.5 h-3.5 text-amber-500" />
+                            Safe Expiry Window *
+                          </label>
+                          <select
+                            value={formShelfLifeHours}
+                            onChange={(e) => setFormShelfLifeHours(e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:border-[#F59E0B]"
+                          >
+                            <option value="4">4 Hours (Hot Cooked Food)</option>
+                            <option value="6">6 Hours (Standard Cooked)</option>
+                            <option value="12">12 Hours (Chilled)</option>
+                            <option value="24">24 Hours (Bakery / Raw Produce)</option>
+                            <option value="48">48 Hours (Packaged / Ambient)</option>
+                          </select>
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                          Pickup Time Slot *
-                        </label>
-                        <input
-                          type="text"
-                          value={formPickupTime}
-                          onChange={(e) => setFormPickupTime(e.target.value)}
-                          placeholder="e.g. 10:00 AM - 12:00 PM"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
-                        />
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                            Preparation Date *
+                          </label>
+                          <input
+                            type="date"
+                            value={formPrepDate}
+                            onChange={(e) => setFormPrepDate(e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                            Pickup Time Slot *
+                          </label>
+                          <input
+                            type="text"
+                            value={formPickupTime}
+                            onChange={(e) => setFormPickupTime(e.target.value)}
+                            placeholder="e.g. 12:00 PM - 02:30 PM"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                          />
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                          Storage Condition *
-                        </label>
-                        <select
-                          value={formStorage}
-                          onChange={(e) => setFormStorage(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:border-[#F59E0B]"
-                        >
-                          <option value="Refrigerated (2-4°C)">Refrigerated (2-4°C)</option>
-                          <option value="Hot-held (>65°C)">Hot-held (&gt;65°C)</option>
-                          <option value="Dry Room Temp">Dry Ambient / Room Temp</option>
-                        </select>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                            Storage Condition *
+                          </label>
+                          <select
+                            value={formStorage}
+                            onChange={(e) => setFormStorage(e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:border-[#F59E0B]"
+                          >
+                            <option value="Hot-held (>65°C)">Hot-held (&gt;65°C)</option>
+                            <option value="Refrigerated (2-4°C)">Refrigerated (2-4°C)</option>
+                            <option value="Dry Room Temp">Dry Ambient / Room Temp</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                            Packaging Container
+                          </label>
+                          <input
+                            type="text"
+                            value={formPackaging}
+                            onChange={(e) => setFormPackaging(e.target.value)}
+                            placeholder="e.g. Sealed Food-Grade Stainless"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                          />
+                        </div>
                       </div>
 
                       <div>
@@ -1031,10 +1191,10 @@ export default function RestaurantDashboard({
                       <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 uppercase font-semibold text-[10px]">
                         <tr>
                           <th className="px-6 py-3.5">Food Item</th>
-                          <th className="px-6 py-3.5">Quantity</th>
+                          <th className="px-6 py-3.5">Quantity & Servings</th>
                           <th className="px-6 py-3.5">Category</th>
                           <th className="px-6 py-3.5">Status</th>
-                          <th className="px-6 py-3.5">Pickup Date</th>
+                          <th className="px-6 py-3.5">Active Period & Expiry</th>
                           <th className="px-6 py-3.5 text-right">Actions</th>
                         </tr>
                       </thead>
@@ -1042,18 +1202,25 @@ export default function RestaurantDashboard({
                         {donationsList.map((item) => (
                           <tr
                             key={item.id}
-                            className="hover:bg-stone-50/70 transition-colors cursor-pointer"
+                            className="hover:bg-stone-50/70 transition-colors cursor-pointer group"
                             onClick={() => setSelectedDonationDetail(item)}
                           >
                             <td className="px-6 py-4 flex items-center gap-3">
                               <img
                                 src={item.image}
                                 alt={item.title}
-                                className="w-10 h-10 rounded-xl object-cover"
+                                className="w-11 h-11 rounded-xl object-cover shrink-0"
                               />
-                              <span className="font-bold text-stone-900">{item.title}</span>
+                              <div className="min-w-0">
+                                <span className="font-bold text-stone-900 group-hover:text-[#0A3F2F] transition-colors block">
+                                  {item.title}
+                                </span>
+                                <span className="text-[10px] text-stone-400 font-normal">
+                                  ID: {item.id} • {item.servings}
+                                </span>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 text-stone-600 font-semibold">{item.quantity}</td>
+                            <td className="px-6 py-4 text-stone-700 font-semibold">{item.quantity}</td>
                             <td className="px-6 py-4 text-stone-600">{item.category}</td>
                             <td className="px-6 py-4">
                               <span
@@ -1062,16 +1229,30 @@ export default function RestaurantDashboard({
                                 {item.status}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-stone-500">{item.pickupDate}</td>
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col gap-1">
+                                <span className="text-xs font-semibold text-stone-800 flex items-center gap-1">
+                                  <Clock className="w-3 h-3 text-stone-400" />
+                                  {item.activeDuration}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full font-bold border border-amber-200/80 inline-flex items-center gap-1">
+                                    <Timer className="w-3 h-3 text-amber-600" />
+                                    Exp: {item.expiryHoursLeft}h left
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
                             <td className="px-6 py-4 text-right">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setSelectedDonationDetail(item);
                                 }}
-                                className="p-1 rounded-lg hover:bg-stone-200 text-stone-400 hover:text-stone-700"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-[#0A3F2F] text-stone-700 hover:text-white font-bold text-xs transition-colors cursor-pointer"
                               >
-                                <MoreVertical className="w-4 h-4" />
+                                <span>Details</span>
+                                <ChevronRight className="w-3.5 h-3.5" />
                               </button>
                             </td>
                           </tr>
@@ -1871,64 +2052,315 @@ export default function RestaurantDashboard({
       {/* DONATION DETAILS MODAL (Panel 6)                         */}
       {/* ======================================================== */}
       {selectedDonationDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-stone-200 space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-8 shadow-2xl border border-stone-200 space-y-6">
             
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-stone-400">
-                My Donations &gt; Donation Details
-              </span>
+            {/* Top Bar */}
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-stone-400">
+                  My Donations &gt; Surplus Food Details &amp; Expiry
+                </span>
+                <span className="bg-stone-100 text-stone-700 font-mono text-[10px] px-2 py-0.5 rounded font-bold">
+                  {selectedDonationDetail.id}
+                </span>
+              </div>
               <button
                 onClick={() => setSelectedDonationDetail(null)}
-                className="p-1 rounded-full hover:bg-stone-100 text-stone-500 cursor-pointer"
+                className="p-1.5 rounded-full hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
+                title="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <img
-              src={selectedDonationDetail.image}
-              alt={selectedDonationDetail.title}
-              className="w-full h-44 rounded-2xl object-cover"
-            />
+            {/* Hero Image with Floating Badges */}
+            <div className="relative rounded-2xl overflow-hidden shadow-sm">
+              <img
+                src={selectedDonationDetail.image}
+                alt={selectedDonationDetail.title}
+                className="w-full h-52 sm:h-60 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-between p-4 sm:p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-md shadow-sm ${selectedDonationDetail.statusColor}`}>
+                    ● {selectedDonationDetail.status}
+                  </span>
+                  
+                  {/* Freshness / Expiry Pill */}
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md shadow-sm flex items-center gap-1.5 ${
+                    selectedDonationDetail.expiryHoursLeft <= 4
+                      ? 'bg-red-500/90 text-white border border-red-400/50'
+                      : selectedDonationDetail.expiryHoursLeft <= 12
+                      ? 'bg-amber-500/90 text-stone-950 border border-amber-300/50'
+                      : 'bg-emerald-600/90 text-white border border-emerald-400/50'
+                  }`}>
+                    <Timer className="w-3.5 h-3.5" />
+                    <span>
+                      {selectedDonationDetail.expiryHoursLeft <= 4
+                        ? `Urgent: ${selectedDonationDetail.expiryHoursLeft}h left`
+                        : `Fresh: ${selectedDonationDetail.expiryHoursLeft}h safe`}
+                    </span>
+                  </span>
+                </div>
 
-            <div className="flex items-center justify-between">
+                <div className="text-white">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="bg-[#F59E0B] text-stone-950 text-[10px] font-black uppercase px-2 py-0.5 rounded">
+                      {selectedDonationDetail.category}
+                    </span>
+                    <span className="text-stone-300 text-xs font-medium">
+                      {selectedDonationDetail.quantity} • {selectedDonationDetail.servings || 'Feeds multiple people'}
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-xs">
+                    {selectedDonationDetail.title}
+                  </h3>
+                </div>
+              </div>
+            </div>
+
+            {/* ======================================================== */}
+            {/* SECTION 1: TIME PERIOD & EXPIRY TRACKING ("Kitna chal    */}
+            {/* rahi hai & Expiry kab ki hai")                          */}
+            {/* ======================================================== */}
+            <div className="rounded-2xl border-2 border-amber-500/30 bg-gradient-to-br from-amber-50/70 via-stone-50 to-emerald-50/40 p-4 sm:p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-amber-500 text-white">
+                    <Timer className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold text-sm text-stone-950">
+                      Time Period &amp; Live Expiry Tracking
+                    </h4>
+                    <p className="text-[11px] text-stone-500">
+                      Real-time duration active and safe consumption countdown
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-full border border-amber-300/60">
+                  {selectedDonationDetail.totalShelfLifeHours || 6}h Total Shelf Life
+                </span>
+              </div>
+
+              {/* 3-Column Time Highlights */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                {/* 1. Preparation Time */}
+                <div className="bg-white/90 p-3 rounded-xl border border-stone-200/80 shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-stone-400 text-[10px] font-bold uppercase tracking-wider mb-1">
+                    <Utensils className="w-3 h-3 text-stone-500" />
+                    <span>Cooked / Prepared</span>
+                  </div>
+                  <div className="font-black text-sm text-stone-900">
+                    {selectedDonationDetail.prepTime || 'Today, 11:30 AM'}
+                  </div>
+                  <div className="text-[10px] text-stone-500 mt-0.5 font-medium">
+                    Date: {selectedDonationDetail.prepDate || selectedDonationDetail.pickupDate}
+                  </div>
+                </div>
+
+                {/* 2. Active Running Duration */}
+                <div className="bg-white/90 p-3 rounded-xl border border-emerald-200/80 shadow-2xs bg-emerald-50/30">
+                  <div className="flex items-center gap-1.5 text-emerald-700 text-[10px] font-bold uppercase tracking-wider mb-1">
+                    <Clock className="w-3 h-3 text-emerald-600" />
+                    <span>Active &amp; Running For</span>
+                  </div>
+                  <div className="font-black text-sm text-emerald-950 flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    {selectedDonationDetail.activeDuration || '2h 10m active'}
+                  </div>
+                  <div className="text-[10px] text-emerald-700 mt-0.5 font-medium">
+                    Broadcasted to nearby NGOs
+                  </div>
+                </div>
+
+                {/* 3. Expiry Deadline */}
+                <div className="bg-white/90 p-3 rounded-xl border border-amber-200/80 shadow-2xs bg-amber-50/30">
+                  <div className="flex items-center gap-1.5 text-amber-700 text-[10px] font-bold uppercase tracking-wider mb-1">
+                    <AlertTriangle className="w-3 h-3 text-amber-600" />
+                    <span>Expiry Cutoff Time</span>
+                  </div>
+                  <div className="font-black text-sm text-amber-950">
+                    {selectedDonationDetail.expiresAt || selectedDonationDetail.safeUntil}
+                  </div>
+                  <div className="text-[10px] text-amber-800 mt-0.5 font-medium">
+                    Strict food safety limit
+                  </div>
+                </div>
+              </div>
+
+              {/* Visual Expiry Timeline Progress Bar */}
+              <div className="bg-white/90 p-3.5 rounded-xl border border-stone-200/80 space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span className="text-stone-600 flex items-center gap-1">
+                    <span>Safe Window Progress:</span>
+                    <span className="font-bold text-stone-900">
+                      {selectedDonationDetail.expiryPercent || 40}% Elapsed
+                    </span>
+                  </span>
+                  <span className="text-amber-800 font-bold bg-amber-100/70 px-2 py-0.5 rounded text-[11px]">
+                    ⏳ {selectedDonationDetail.expiryHoursLeft} Hours Remaining
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="w-full bg-stone-100 h-2.5 rounded-full overflow-hidden p-0.5 border border-stone-200">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      (selectedDonationDetail.expiryPercent || 40) > 75
+                        ? 'bg-red-500'
+                        : (selectedDonationDetail.expiryPercent || 40) > 50
+                        ? 'bg-amber-500'
+                        : 'bg-emerald-500'
+                    }`}
+                    style={{ width: `${Math.min(100, selectedDonationDetail.expiryPercent || 40)}%` }}
+                  />
+                </div>
+
+                {/* Timeline Markers */}
+                <div className="flex items-center justify-between text-[10px] font-medium text-stone-400 pt-0.5">
+                  <span>🟢 Cooked (0h)</span>
+                  <span className="text-stone-700 font-semibold">
+                    📍 Current: {selectedDonationDetail.activeDuration || 'Active'}
+                  </span>
+                  <span>🔴 Expiry Deadline ({selectedDonationDetail.totalShelfLifeHours || 6}h)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ======================================================== */}
+            {/* SECTION 2: DONATION DETAILS ("Kya hai" - Contents)       */}
+            {/* ======================================================== */}
+            <div className="space-y-3">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-stone-500" />
+                Donation Details &amp; Food Specifications
+              </h4>
+
+              {/* Food Description */}
+              <p className="text-xs sm:text-sm text-stone-700 leading-relaxed bg-stone-50 p-3.5 rounded-xl border border-stone-200/70">
+                {selectedDonationDetail.description ||
+                  'Fresh surplus meals prepared under verified food hygiene standards. 100% untouched and unserved surplus food.'}
+              </p>
+
+              {/* Dishes & Menu Items Breakdown */}
+              {selectedDonationDetail.itemsList && selectedDonationDetail.itemsList.length > 0 && (
+                <div>
+                  <span className="block text-[11px] font-bold text-stone-500 mb-1.5 uppercase tracking-wider">
+                    Included Items &amp; Dishes:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedDonationDetail.itemsList.map((item: string, idx: number) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1.5 bg-stone-100 text-stone-800 px-3 py-1.5 rounded-xl text-xs font-semibold border border-stone-200/90"
+                      >
+                        <Utensils className="w-3 h-3 text-[#F59E0B]" />
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Dietary Badges */}
+              {selectedDonationDetail.dietary && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {selectedDonationDetail.dietary.map((tag: string, idx: number) => (
+                    <span
+                      key={idx}
+                      className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-lg"
+                    >
+                      ✓ {tag}
+                    </span>
+                  ))}
+                  {selectedDonationDetail.allergens && (
+                    <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-lg">
+                      Allergens: {selectedDonationDetail.allergens}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* ======================================================== */}
+            {/* SECTION 3: LOGISTICS & FOOD SAFETY SPECS                 */}
+            {/* ======================================================== */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
+              <div className="space-y-1">
+                <span className="text-stone-400 font-semibold block text-[10px] uppercase">
+                  Storage &amp; Temperature
+                </span>
+                <span className="font-bold text-stone-900 block flex items-center gap-1.5">
+                  {selectedDonationDetail.storage.includes('Hot') ? (
+                    <Flame className="w-3.5 h-3.5 text-red-500" />
+                  ) : (
+                    <Snowflake className="w-3.5 h-3.5 text-blue-500" />
+                  )}
+                  {selectedDonationDetail.storage}
+                </span>
+                <span className="text-[10px] text-stone-500 font-medium">
+                  Recorded Temp: {selectedDonationDetail.storageTemp || 'Verified on dispatch'}
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-stone-400 font-semibold block text-[10px] uppercase">
+                  Packaging Container
+                </span>
+                <span className="font-bold text-stone-900 block flex items-center gap-1.5">
+                  <Package className="w-3.5 h-3.5 text-emerald-600" />
+                  {selectedDonationDetail.packaging || 'Food-Grade Sealed Containers'}
+                </span>
+                <span className="text-[10px] text-stone-500 font-medium">
+                  Sealed &amp; tamper-evident
+                </span>
+              </div>
+
+              <div className="space-y-1 pt-2 sm:pt-0 sm:border-t-0 border-t border-stone-200/60">
+                <span className="text-stone-400 font-semibold block text-[10px] uppercase">
+                  Pickup Slot
+                </span>
+                <span className="font-bold text-stone-900 block flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                  {selectedDonationDetail.pickupSlot || '10:00 AM - 12:00 PM'}
+                </span>
+                <span className="text-[10px] text-stone-500 font-medium">
+                  Pickup Date: {selectedDonationDetail.pickupDate}
+                </span>
+              </div>
+
+              <div className="space-y-1 pt-2 sm:pt-0 sm:border-t-0 border-t border-stone-200/60">
+                <span className="text-stone-400 font-semibold block text-[10px] uppercase">
+                  Donor Restaurant
+                </span>
+                <span className="font-bold text-emerald-800 block flex items-center gap-1.5">
+                  <Store className="w-3.5 h-3.5 text-emerald-700" />
+                  The Green Table Restaurant
+                </span>
+                <span className="text-[10px] text-stone-500 font-medium">
+                  {selectedDonationDetail.distance} away from volunteer hub
+                </span>
+              </div>
+            </div>
+
+            {/* Food Safety Guarantee Tag */}
+            <div className="bg-emerald-50/80 border border-emerald-200 p-3 rounded-xl flex items-center gap-2.5 text-xs text-emerald-900">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
               <div>
-                <h3 className="text-xl font-black text-stone-950">
-                  {selectedDonationDetail.title}
-                </h3>
-                <p className="text-xs text-stone-500 font-semibold mt-0.5">
-                  {selectedDonationDetail.category} • {selectedDonationDetail.quantity}
-                </p>
-              </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-bold border ${selectedDonationDetail.statusColor}`}>
-                {selectedDonationDetail.status}
-              </span>
-            </div>
-
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200/80 text-xs space-y-2">
-              <div className="flex justify-between">
-                <span className="text-stone-500">Storage Condition:</span>
-                <span className="font-semibold text-stone-900">{selectedDonationDetail.storage}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-stone-500">Allergens:</span>
-                <span className="font-semibold text-stone-900">{selectedDonationDetail.allergens}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-stone-500">Pickup Slot:</span>
-                <span className="font-semibold text-stone-900">10:00 AM - 12:00 PM</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-stone-500">Donor Restaurant:</span>
-                <span className="font-semibold text-emerald-800">The Green Table Restaurant</span>
+                <span className="font-bold block">FSSAI Surplus Food Regulations Certified</span>
+                <span className="text-[10px] text-emerald-700">
+                  Strictly unused and unserved food that has not been served to customers. Safe for human redistribution.
+                </span>
               </div>
             </div>
 
+            {/* Bottom Actions */}
             <div className="flex items-center gap-3 pt-2">
               <button
                 onClick={() => setSelectedDonationDetail(null)}
-                className="flex-1 py-3 rounded-xl bg-[#0A3F2F] text-white font-bold text-xs hover:bg-[#072F23] transition-all cursor-pointer text-center"
+                className="flex-1 py-3 rounded-xl bg-[#0A3F2F] text-white font-bold text-xs hover:bg-[#072F23] transition-all cursor-pointer text-center shadow-md hover:shadow-lg"
               >
                 Close Details
               </button>
