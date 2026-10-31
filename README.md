@@ -33,10 +33,24 @@ This platform bridges that gap by connecting three key groups in real time:
 ## ✨ Key Features
 
 - **Multi-Role Dashboards:** Separate, clean interfaces for Food Donors, NGOs, and Volunteers.
+- **Detailed Surplus Inventory & Expiry Tracking:** View complete food descriptions, portion counts, allergen chips, storage temperatures, active running duration, and color-coded expiry countdowns.
 - **Live Dispatch Map:** An interactive visual map that tracks active donations, pickups, and deliveries across town.
 - **Expiry & Pickup Timers:** Ensures food is picked up and distributed while it is still fresh and safe.
 - **Food Safety Checklists:** Clear guidelines and verification steps before food is accepted and handed over.
 - **Interactive 3D Assistant:** An engaging guide to help first-time users explore the platform.
+
+---
+
+## 📚 In-Depth Research & Safety Guide
+
+For a simple, jargon-free breakdown of the underlying government statistics, UNEP data, and food safety regulations:
+👉 **[Read the Full Project Summary & Research Guide (PROJECT_SUMMARY.md)](PROJECT_SUMMARY.md)**
+
+It covers:
+1. **Real Data vs Myths:** Breaking down the 78.2 million tonnes household estimate.
+2. **Food Safety Standards:** Why plate leftovers and scraps are strictly prohibited under FSSAI rules.
+3. **Jaipur Pilot Network:** Why local cluster operations work best for fast food recovery.
+4. **Honest Metrics:** Accurately measuring rescued meals without confusing composting with human consumption.
 
 ---
 
