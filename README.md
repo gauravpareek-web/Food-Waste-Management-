@@ -57,7 +57,7 @@ It covers:
 ## 🚀 How to Run the Project Locally
 
 ### Prerequisites
-Make sure you have [Node.js](https://nodejs.org/) installed on your computer.
+Make sure you have [Node.js](https://nodejs.org/) (v22+ recommended for native SQLite) installed on your computer.
 
 ### Steps
 
@@ -67,23 +67,22 @@ Make sure you have [Node.js](https://nodejs.org/) installed on your computer.
    cd Food-Waste-Management-
    ```
 
-2. **Move into the web application folder:**
+2. **Start the Backend Server (Port 5001 - Food Safety Engine & SQLite Database):**
    ```bash
-   cd site
-   ```
-
-3. **Install dependencies:**
-   ```bash
+   cd server
    npm install
-   ```
-
-4. **Start the development server:**
-   ```bash
    npm run dev
    ```
 
-5. **Open in your browser:**
-   Click the local link shown in your terminal (usually `http://localhost:5199/` or `http://localhost:5173/`).
+3. **Start the Frontend Web App (In a second terminal - Port 5199):**
+   ```bash
+   cd site
+   npm install
+   npm run dev
+   ```
+
+4. **Open in your browser:**
+   Open `http://localhost:5199/` to view the platform. All API calls to `/api` and image uploads to `/uploads` are automatically proxied to the backend server.
 
 ---
 
@@ -91,19 +90,23 @@ Make sure you have [Node.js](https://nodejs.org/) installed on your computer.
 
 ```text
 Food-Waste-Management/
-├── site/                     # Main web application
+├── server/                   # Backend API & Food Safety Engine (Node.js + SQLite)
 │   ├── src/
-│   │   ├── components/       # UI parts (Landing page, Dashboards, Map, 3D Bot)
-│   │   ├── data/             # Sample data, stats, and text content
-│   │   ├── types.ts          # Data types and demo profiles
-│   │   ├── App.tsx           # Main application router and state
-│   │   └── main.tsx          # Application entry point
-│   ├── public/               # Images, photos, and static assets
-│   ├── package.json          # Project dependencies and run scripts
-│   └── vite.config.ts        # Vite configuration
-├── projectsummary.txt        # Research notes and national food waste data
-├── promtforsite.txt          # Design notes and reference prompts
-└── README.md                 # This file
+│   │   ├── db/database.ts    # Native SQLite database schema & migrations
+│   │   ├── rules/            # Configurable Food Safety & Expiry Rules Matrix
+│   │   ├── routes/           # REST APIs (/api/donations, /api/safety)
+│   │   └── index.ts          # Express server entry point (Port 5001)
+│   ├── test/                 # Automated unit & API integration test suites
+│   └── package.json
+├── site/                     # Frontend client (React + Vite + Tailwind CSS)
+│   ├── src/
+│   │   ├── components/       # Dashboards (Donor, NGO, Volunteer), Maps & Modals
+│   │   ├── App.tsx           # Main application routing and role switching
+│   │   └── main.tsx          # Client entry point
+│   └── vite.config.ts        # Vite configuration with /api reverse proxy
+├── PROJECT_SUMMARY.md        # Jargon-free research & food safety handbook
+├── README.md                 # Project guide
+└── .gitignore
 ```
 
 ---
@@ -111,7 +114,9 @@ Food-Waste-Management/
 ## 🛠️ Built With
 
 - **React & TypeScript** — For building a fast, interactive user interface.
-- **Vite** — For ultra-fast local development and building.
+- **Vite** — For ultra-fast local development and production bundling.
+- **Node.js & Express** — Lightweight backend server with REST APIs.
+- **Native SQLite (`node:sqlite`)** — Built-in zero-dependency database with foreign keys and audit logs.
 - **Tailwind CSS** — For clean, modern styling that works on all screen sizes.
 - **Lucide Icons** — Friendly, lightweight icons across all dashboards.
 - **Three.js** — Smooth 3D graphics for interactive platform visuals.
