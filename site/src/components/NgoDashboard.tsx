@@ -182,120 +182,120 @@ export default function NgoDashboard({
     { name: 'Dairy & Sealed Packaged Goods', percent: 12, meals: 279, color: 'bg-indigo-600', textColor: 'text-indigo-700' },
   ];
 
-  // Sample Food Surplus Donated by Local Palm Beach Restaurants
+  // Sample Food Surplus Donated by Local Palm Beach Restaurants (Authentic Surplus Dishes)
   const [availableFood, setAvailableFood] = useState<FoodItem[]>([
     {
       id: 'DON-01',
-      title: 'Fresh Vegetable Box',
-      restaurant: 'Green Table Restaurant',
+      title: 'Rajma Masala & Steamed Jeera Basmati Rice',
+      restaurant: 'The Green Table Restaurant',
       distance: '2.4 km',
-      quantity: '15 kg',
-      servings: 'Feeds ~45 people',
+      quantity: '40 kg',
+      servings: 'Feeds ~50 people',
       pickupTime: 'Today 12:00 PM',
       date: 'Apr 27, 2026',
       status: 'Available',
-      category: 'Vegetables',
-      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
-      storage: 'Refrigerated (2-4°C)',
-      storageTemp: '3.2°C logged',
-      packaging: 'Moisture-controlled ventilated crates',
+      category: 'Cooked Meals',
+      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80',
+      storage: 'Hot Holding (>65°C)',
+      storageTemp: '68.5°C verified (>65°C)',
+      packaging: 'Moisture-controlled insulated stainless containers',
       allergens: 'None',
-      dietary: ['100% Vegetarian', 'Raw Fresh Produce', 'Gluten-Free'],
-      itemsList: ['Organic Spinach (4 kg)', 'Carrots & Cucumbers (5 kg)', 'Bell Peppers (3 kg)', 'Fresh Tomatoes (3 kg)'],
-      description: 'Assorted farm-fresh organic vegetables packed directly from commercial kitchen inventory, washed, sanitized, and stored under temperature control.',
+      dietary: ['100% Vegetarian', 'High Protein', 'Gluten-Free Option'],
+      itemsList: ['Punjabi Rajma Masala (18 L)', 'Steamed Jeera Basmati Rice (25 kg)', 'Whole Wheat Phulkas (80 pcs)', 'Pickled Spiced Salad (5 kg)'],
+      description: 'Slow-cooked authentic Punjabi rajma masala with aromatic jeera basmati rice, warm phulkas, and fresh salad packed in insulated thermal trays.',
       prepTime: '09:00 AM',
       activeDuration: '1h 45m active',
-      expiresAt: 'Tomorrow at 06:00 PM',
-      expiryHoursLeft: 18,
-      totalShelfLifeHours: 24,
-      expiryPercent: 25,
+      expiresAt: 'Today at 05:00 PM',
+      expiryHoursLeft: 5.5,
+      totalShelfLifeHours: 8,
+      expiryPercent: 32,
       donorPhone: '+1 (561) 555-0192',
       donorAddress: '125 Palm Street, West Palm Beach, FL',
       fssaiCertified: true,
     },
     {
       id: 'DON-02',
-      title: 'Cooked Meals (Paneer Curry & Rice)',
-      restaurant: 'Sunrise Kitchen',
+      title: 'Kesar Rasmalai & Gulab Jamun Sweet Trays',
+      restaurant: 'Sunrise Sweets & Banquet',
       distance: '3.1 km',
-      quantity: '25 portions',
-      servings: 'Feeds ~25-30 adults',
+      quantity: '100 portions',
+      servings: 'Feeds ~60-70 people',
       pickupTime: 'Today 1:00 PM',
       date: 'Apr 27, 2026',
       status: 'Expiring Soon',
-      category: 'Cooked Meals',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
-      storage: 'Hot-held (>65°C)',
-      storageTemp: '68°C verified',
-      packaging: 'Sealed food-grade stainless thermal containers',
-      allergens: 'Dairy (Paneer & Butter)',
-      dietary: ['Vegetarian', 'Nut-Free', 'Fresh Cooked'],
-      itemsList: ['Shahi Paneer Curry (12 L)', 'Jeera Basmati Rice (15 kg)', 'Whole Wheat Rotis (50 pcs)', 'Salad'],
-      description: 'Freshly prepared hot banquet lunch, untouched in heated steam pans, strictly unserved surplus meeting food safety standards.',
+      category: 'Dairy',
+      image: 'https://images.unsplash.com/photo-1505253758473-96b3015f27eb?auto=format&fit=crop&w=600&q=80',
+      storage: 'Refrigerated (2-4°C)',
+      storageTemp: '3.0°C verified',
+      packaging: 'Sealed food-grade sweet containers (Cold Chain)',
+      allergens: 'Dairy (Milk, Pistachio & Almond)',
+      dietary: ['Vegetarian', 'Zero Preservatives', 'Dessert'],
+      itemsList: ['Kesar Pistachio Rasmalai (60 portions)', 'Warm Gulab Jamun Trays (40 portions)', 'Cardamom Syrup Drizzle'],
+      description: 'Freshly prepared saffron-infused cottage cheese dumplings in rich pistachio rabri alongside soft warm gulab jamuns, packed in hygienic refrigerated sweet crates.',
       prepTime: '11:15 AM',
       activeDuration: '2h 10m active',
-      expiresAt: 'Today at 05:30 PM',
-      expiryHoursLeft: 3.5,
-      totalShelfLifeHours: 6,
-      expiryPercent: 58,
+      expiresAt: 'Tomorrow at 12:00 PM',
+      expiryHoursLeft: 23,
+      totalShelfLifeHours: 28,
+      expiryPercent: 18,
       donorPhone: '+1 (561) 555-0178',
       donorAddress: '88 Clematis St, West Palm Beach, FL',
       fssaiCertified: true,
     },
     {
       id: 'DON-03',
-      title: 'Artisan Bakery & Fresh Loaves',
-      restaurant: 'Palm Beach Bakery',
+      title: 'Dal Makhani & Whole Wheat Naan Meal Baskets',
+      restaurant: 'Royal Heritage Kitchen',
       distance: '4.0 km',
-      quantity: '10 boxes',
-      servings: 'Feeds ~50 people',
+      quantity: '45 portions',
+      servings: 'Feeds ~50-60 people',
       pickupTime: 'Today 2:00 PM',
       date: 'Apr 27, 2026',
       status: 'Available',
-      category: 'Bakery',
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
-      storage: 'Ambient dry shelf',
-      storageTemp: '22°C ambient',
-      packaging: 'Food-safe kraft paper bags & sealed cartons',
-      allergens: 'Wheat, Gluten',
-      dietary: ['Vegetarian', 'Eggless', 'No Preservatives'],
-      itemsList: ['Sourdough Loaves (6)', 'Whole Grain Baguettes (8)', 'Multigrain Dinner Rolls (40 pcs)'],
-      description: 'Same-day baked artisan sourdough loaves, baguettes, and dinner rolls from morning bake cycle, properly wrapped in parchment bags.',
+      category: 'Cooked Meals',
+      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+      storage: 'Hot Holding (>65°C)',
+      storageTemp: '69.0°C verified',
+      packaging: 'Thermal insulated transport cambros',
+      allergens: 'Dairy & Gluten',
+      dietary: ['Vegetarian', 'Fresh Cooked', 'High Energy'],
+      itemsList: ['Dal Makhani Slow Simmered (20 L)', 'Tandoori Whole Wheat Naan (90 pcs)', 'Jeera Green Pea Pulao (20 kg)', 'Tangy Mint Chutney (4 L)'],
+      description: 'Creamy slow-simmered black lentil dal makhani with clay-oven baked tandoori naans and fresh jeera pulao, untouched banquet surplus kept hot.',
       prepTime: '07:30 AM',
       activeDuration: '5h 15m active',
-      expiresAt: 'Tomorrow at 12:00 PM',
-      expiryHoursLeft: 22,
-      totalShelfLifeHours: 30,
-      expiryPercent: 30,
+      expiresAt: 'Today at 07:30 PM',
+      expiryHoursLeft: 4.2,
+      totalShelfLifeHours: 8,
+      expiryPercent: 48,
       donorPhone: '+1 (561) 555-0143',
       donorAddress: '310 Royal Poinciana Way, Palm Beach, FL',
       fssaiCertified: true,
     },
     {
       id: 'DON-04',
-      title: 'Florida Sweet Oranges & Apples',
-      restaurant: 'Healthy Bites Cafe',
+      title: 'Shahi Paneer Tikka Gravy & Vegetable Dum Biryani',
+      restaurant: 'Healthy Bites Caterers',
       distance: '4.8 km',
-      quantity: '12 kg',
-      servings: 'Feeds ~35 people',
+      quantity: '35 kg',
+      servings: 'Feeds ~45 people',
       pickupTime: 'Today 3:30 PM',
       date: 'Apr 27, 2026',
       status: 'Available',
-      category: 'Fruits',
-      image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80',
-      storage: 'Cool dry pantry',
-      storageTemp: '18°C ambient',
-      packaging: 'Cushioned ventilated fruit crates',
-      allergens: 'None',
-      dietary: ['100% Vegan', 'Raw Fruit', 'Gluten-Free'],
-      itemsList: ['Sweet Oranges (4 kg)', 'Crisp Apples (5 kg)', 'Fresh Bananas (3 kg)'],
-      description: 'Whole unpeeled fresh apples, bananas, and oranges, sorted and inspected for zero bruising, high nutrition for shelter children.',
+      category: 'Cooked Meals',
+      image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80',
+      storage: 'Hot Holding (>65°C)',
+      storageTemp: '67.0°C verified',
+      packaging: 'Double-walled steam pan containers',
+      allergens: 'Dairy (Paneer & Butter)',
+      dietary: ['Vegetarian', 'Nut-Free', 'Fresh Banquet Surplus'],
+      itemsList: ['Shahi Paneer Tikka Gravy (16 L)', 'Hyderabadi Veg Dum Biryani (22 kg)', 'Chilled Boondi Raita (10 L)', 'Roasted Papad & Pickles'],
+      description: 'Rich royal cottage cheese in satin tomato gravy paired with slow-cooked hyderabadi vegetable dum biryani, fried onions, and boondi raita.',
       prepTime: '08:45 AM',
       activeDuration: '3h 30m active',
-      expiresAt: 'Apr 29, 2026 • 08:00 PM',
-      expiryHoursLeft: 48,
-      totalShelfLifeHours: 72,
-      expiryPercent: 15,
+      expiresAt: 'Today at 06:30 PM',
+      expiryHoursLeft: 6.0,
+      totalShelfLifeHours: 8,
+      expiryPercent: 25,
       donorPhone: '+1 (561) 555-0167',
       donorAddress: '550 S Ocean Blvd, Palm Beach, FL',
       fssaiCertified: true,
@@ -357,27 +357,27 @@ export default function NgoDashboard({
     };
   }, [isTrackingPlaying, trackingSpeed]);
 
-  // NGO's Outgoing Requests
+  // NGO's Outgoing Requests (Real authentic surplus dishes)
   const [myRequests, setMyRequests] = useState([
     {
       id: 'REQ-801',
-      foodItem: 'Fresh Salad Box',
-      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=200&q=80',
-      restaurant: 'Green Table Restaurant',
-      quantity: '10 kg',
-      requestDate: 'Apr 26, 2025',
+      foodItem: 'Rajma Masala & Steamed Jeera Basmati Rice',
+      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=200&q=80',
+      restaurant: 'The Green Table Restaurant',
+      quantity: '40 kg',
+      requestDate: 'Apr 27, 2026',
       status: 'Pending' as const,
       pickupWindow: 'Today 2:00 PM',
     },
     {
       id: 'REQ-802',
-      foodItem: 'Warm Lentil Soup Bowls',
-      image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=200&q=80',
-      restaurant: 'Harbor Grille',
-      quantity: '30 portions',
-      requestDate: 'Apr 25, 2025',
+      foodItem: 'Kesar Rasmalai & Gulab Jamun Sweet Trays',
+      image: 'https://images.unsplash.com/photo-1505253758473-96b3015f27eb?auto=format&fit=crop&w=200&q=80',
+      restaurant: 'Sunrise Sweets & Banquet',
+      quantity: '100 portions',
+      requestDate: 'Apr 27, 2026',
       status: 'Accepted' as const,
-      pickupWindow: 'Tomorrow 11:30 AM',
+      pickupWindow: 'Today 1:30 PM',
     },
   ]);
 
@@ -1471,7 +1471,7 @@ export default function NgoDashboard({
                               White Mahindra Bolero EV Cargo • <span className="font-mono text-amber-300">DL 01 AB 4092</span>
                             </p>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-[10px] text-stone-400">Insulated Cargo: 3.2°C logged</span>
+                              <span className="text-[10px] text-stone-400">Insulated Cargo: 68.5°C verified</span>
                               <span className="text-[10px] text-emerald-400 font-bold">• 184 Deliveries</span>
                             </div>
                           </div>
@@ -2069,44 +2069,170 @@ export default function NgoDashboard({
           )}
 
           {/* ======================================================== */}
-          {/* TAB 4: ACCEPTED DONATIONS                                */}
+          {/* TAB 4: ACCEPTED DONATIONS & LIVE DISPATCH TELEMETRY       */}
           {/* ======================================================== */}
           {activeTab === 'accepted' && (
             <div className="bg-white rounded-3xl p-6 border border-stone-200/80 shadow-sm space-y-6">
-              <div>
-                <h2 className="text-xl font-black text-stone-900">Accepted Surplus Ready for Handover</h2>
-                <p className="text-xs text-stone-500">Commercial kitchens that approved your request. Show the verification code at pickup.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-black text-stone-900">Accepted Surplus Ready for Handover &amp; Transit</h2>
+                  <p className="text-xs text-stone-500">
+                    Approved donation batches with real-time GPS courier telemetry, digital OTPs, and cold-chain logs.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    3 Rescues In Progress
+                  </span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-5 rounded-3xl border-2 border-emerald-500 bg-emerald-50/20 space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Accepted Card 1: Rajma Masala (In Transit) */}
+                <div className="p-5 rounded-3xl border-2 border-emerald-500 bg-gradient-to-br from-emerald-50/40 via-white to-stone-50/60 shadow-xs space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                      Ready for Pickup
+                    <span className="bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                      Live In Transit (Ola/Uber Dispatch)
                     </span>
-                    <span className="font-mono text-xs font-bold text-emerald-800">OTP: 4892</span>
+                    <span className="font-mono text-xs font-extrabold text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded-lg border border-emerald-200">
+                      Handover OTP: 4892
+                    </span>
                   </div>
-                  <div>
-                    <h3 className="font-extrabold text-base text-stone-900">Cooked Meals (Veg) - 25 Portions</h3>
-                    <p className="text-xs text-stone-500">Sunrise Kitchen • 88 Clematis St, West Palm Beach</p>
-                  </div>
-                  <div className="bg-white p-3 rounded-2xl border border-stone-200 text-xs space-y-1">
-                    <div className="flex justify-between">
-                      <span className="text-stone-500">Donor Contact:</span>
-                      <span className="font-bold text-stone-900">+1 (561) 555-0178</span>
+
+                  <div className="flex items-start gap-3.5">
+                    <img 
+                      src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=200&q=80" 
+                      alt="Rajma Masala & Jeera Rice" 
+                      className="w-16 h-16 rounded-2xl object-cover border border-emerald-200 shrink-0 shadow-xs"
+                    />
+                    <div className="space-y-0.5">
+                      <h3 className="font-extrabold text-base text-stone-900">
+                        Rajma Masala &amp; Steamed Jeera Basmati Rice
+                      </h3>
+                      <p className="text-xs font-semibold text-emerald-800">The Green Table Restaurant • 40 kg (Feeds 50)</p>
+                      <p className="text-[11px] text-stone-500">125 Palm Street, West Palm Beach • FSSAI Lic #10020011000123</p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-stone-500">Assigned Volunteer:</span>
-                      <span className="font-bold text-emerald-800">Rahul (Van #4)</span>
+                  </div>
+
+                  {/* Live GPS Telemetry Box */}
+                  <div className="bg-white p-3.5 rounded-2xl border border-stone-200 text-xs space-y-2.5 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <img 
+                          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
+                          alt="Driver Rahul"
+                          className="w-8 h-8 rounded-full object-cover border border-emerald-600"
+                        />
+                        <div>
+                          <div className="font-bold text-stone-900 text-[11px]">Rahul Sharma • Bolero EV (DL 01 AB 4092)</div>
+                          <div className="text-[10px] text-stone-500">Speed: 28 km/h • Flagler Dr near Palm Beach Blvd</div>
+                        </div>
+                      </div>
+                      <span className="font-bold text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+                        ETA ~6 Mins
+                      </span>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px] font-bold text-stone-500">
+                        <span>The Green Table Kitchen</span>
+                        <span>Hope Foundation Shelter</span>
+                      </div>
+                      <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
+                        <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: '74%' }} />
+                      </div>
+                    </div>
+
+                    {/* Temperature Probe Data */}
+                    <div className="flex items-center justify-between text-[10px] pt-1 border-t border-stone-100 font-medium">
+                      <span className="text-stone-500">Digital Cargo Probe:</span>
+                      <span className="font-extrabold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                        🔥 68.5°C Hot-Holding Verified Safe (&gt;65°C)
+                      </span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => setActiveTab('tracking')}
-                    className="w-full py-2.5 rounded-xl bg-[#0A3F2F] text-white text-xs font-bold hover:bg-black transition-colors"
-                  >
-                    Open Live GPS Tracking
-                  </button>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setActiveTab('tracking')}
+                      className="py-2.5 px-3 rounded-xl bg-[#0A3F2F] text-white text-xs font-bold hover:bg-black transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <Truck className="w-3.5 h-3.5" />
+                      <span>Full-Screen Live GPS</span>
+                    </button>
+                    <button
+                      onClick={() => alert('Calling Volunteer Driver Rahul Sharma at +1 (561) 555-0188')}
+                      className="py-2.5 px-3 rounded-xl border border-stone-300 hover:bg-stone-50 text-stone-800 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Call Courier</span>
+                    </button>
+                  </div>
                 </div>
+
+                {/* Accepted Card 2: Kesar Rasmalai (Ready for Handover) */}
+                <div className="p-5 rounded-3xl border border-stone-200 bg-white shadow-xs space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                      Courier Assigned • Scheduled 01:30 PM
+                    </span>
+                    <span className="font-mono text-xs font-extrabold text-blue-900 bg-blue-100 px-2 py-0.5 rounded-lg border border-blue-200">
+                      Handover OTP: 7129
+                    </span>
+                  </div>
+
+                  <div className="flex items-start gap-3.5">
+                    <img 
+                      src="https://images.unsplash.com/photo-1505253758473-96b3015f27eb?auto=format&fit=crop&w=200&q=80" 
+                      alt="Kesar Rasmalai & Gulab Jamun" 
+                      className="w-16 h-16 rounded-2xl object-cover border border-stone-200 shrink-0 shadow-xs"
+                    />
+                    <div className="space-y-0.5">
+                      <h3 className="font-extrabold text-base text-stone-900">
+                        Kesar Rasmalai &amp; Gulab Jamun Sweet Trays
+                      </h3>
+                      <p className="text-xs font-semibold text-emerald-800">Sunrise Sweets &amp; Banquet • 100 Portions (Feeds 70)</p>
+                      <p className="text-[11px] text-stone-500">88 Clematis St, West Palm Beach • FSSAI Lic #10020011000889</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 text-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold text-stone-900 text-[11px]">Amit Verma • Tata Ace EV (DL 03 CE 8102)</div>
+                      <span className="font-bold text-[11px] text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md">
+                        En Route to Dock
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] pt-1 border-t border-stone-200 font-medium">
+                      <span className="text-stone-500">Insulated Cold Chain Sensor:</span>
+                      <span className="font-extrabold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
+                        ❄️ 3.0°C Chilled Storage Verified (2-4°C)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setActiveTab('tracking')}
+                      className="py-2.5 px-3 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-black transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <Truck className="w-3.5 h-3.5" />
+                      <span>View Route GPS</span>
+                    </button>
+                    <button
+                      onClick={() => alert('Calling Sunrise Sweets Kitchen at +1 (561) 555-0178')}
+                      className="py-2.5 px-3 rounded-xl border border-stone-300 hover:bg-stone-50 text-stone-800 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Call Kitchen</span>
+                    </button>
+                  </div>
+                </div>
+
               </div>
             </div>
           )}
@@ -3100,8 +3226,29 @@ export default function NgoDashboard({
           {activeTab === 'settings' && (
             <div className="bg-white rounded-3xl p-6 border border-stone-200/80 shadow-sm max-w-3xl space-y-6">
               <div>
-                <h2 className="text-xl font-black text-stone-900">Hope Foundation Profile & Settings</h2>
-                <p className="text-xs text-stone-500">Configure your NGO registry, contact info, and distribution capacity</p>
+                <h2 className="text-xl font-black text-stone-900">Hope Foundation Profile &amp; Regulatory Settings</h2>
+                <p className="text-xs text-stone-500">Configure your NGO Darpan registry, FSSAI compliance, and shelter distribution capacity</p>
+              </div>
+
+              {/* FSSAI & Darpan Verified Status Card */}
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                    <span className="text-xs font-bold text-emerald-900 uppercase tracking-wide">
+                      NGO Food Recovery Authorization
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white">
+                    ✓ Verified Active &amp; Empanelled
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-stone-700 font-medium">
+                  <div>NGO Darpan Reg: <span className="font-mono font-bold text-stone-900">DL/2023/0345678</span></div>
+                  <div>FSSAI Recovery Lic: <span className="font-mono font-bold text-stone-900">10020011000144</span></div>
+                  <div>NITI Aayog Status: <span className="font-bold text-emerald-800">Compliant (Zero Violations)</span></div>
+                  <div>Valid Through: <span className="font-bold text-stone-900">31-Dec-2028</span></div>
+                </div>
               </div>
 
               <div className="flex items-center gap-4 pb-6 border-b border-stone-200">
@@ -3114,18 +3261,18 @@ export default function NgoDashboard({
                   <h4 className="font-extrabold text-sm text-stone-900">Priya Sharma</h4>
                   <p className="text-xs text-stone-500">NGO Coordinator • Hope Foundation</p>
                   <span className="mt-1 inline-block bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    FL Registered Charity #501(c)(3)
+                    FL Registered Charity #501(c)(3) • 80G Certified
                   </span>
                 </div>
               </div>
 
-              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); alert('Settings saved successfully!'); }}>
+              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); alert('NGO Settings and FSSAI credentials saved successfully!'); }}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-stone-700 block mb-1">Organization Name</label>
                     <input
                       type="text"
-                      defaultValue="Hope Foundation"
+                      defaultValue="Hope Foundation Hunger Relief"
                       className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-emerald-600 font-medium"
                     />
                   </div>
@@ -3138,6 +3285,24 @@ export default function NgoDashboard({
                     />
                   </div>
                   <div>
+                    <label className="text-xs font-bold text-stone-700 block mb-1">
+                      FSSAI / Darpan NGO Registration Number *
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue="DL/2023/0345678"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 font-mono text-xs focus:outline-none focus:border-emerald-600 font-bold text-stone-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-stone-700 block mb-1">Food Safety Supervisor Name</label>
+                    <input
+                      type="text"
+                      defaultValue="Dr. Ananya Roy (Cert #FSSAI-SUP-882)"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs focus:outline-none focus:border-emerald-600 font-medium"
+                    />
+                  </div>
+                  <div>
                     <label className="text-xs font-bold text-stone-700 block mb-1">Phone Number</label>
                     <input
                       type="text"
@@ -3146,7 +3311,7 @@ export default function NgoDashboard({
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-stone-700 block mb-1">Primary Distribution Center</label>
+                    <label className="text-xs font-bold text-stone-700 block mb-1">Primary Distribution Hub</label>
                     <input
                       type="text"
                       defaultValue="420 Palm Beach Lakes Blvd, FL"
@@ -3374,14 +3539,14 @@ export default function NgoDashboard({
                     <tbody className="divide-y divide-stone-100 font-medium text-stone-700">
                       <tr className="hover:bg-stone-50/70 transition-colors">
                         <td className="px-5 py-3.5">
-                          <span className="font-bold text-stone-900 block">DON-101 • Fresh Veg Box</span>
-                          <span className="text-[10px] text-stone-400">Vegetables • Farm Fresh</span>
+                          <span className="font-bold text-stone-900 block">DON-101 • Rajma Masala &amp; Steamed Jeera Rice</span>
+                          <span className="text-[10px] text-stone-400">Curry &amp; Rice • Insulated Thermal Pan</span>
                         </td>
                         <td className="px-5 py-3.5 font-semibold text-emerald-800">The Green Table Restaurant</td>
-                        <td className="px-5 py-3.5 font-bold">15 kg (Feeds 45)</td>
+                        <td className="px-5 py-3.5 font-bold">40 kg (Feeds 50)</td>
                         <td className="px-5 py-3.5">
                           <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 inline-block">
-                            ✓ FSSAI Passed (3.2°C logged)
+                            ✓ FSSAI Passed (68.5°C verified)
                           </span>
                         </td>
                         <td className="px-5 py-3.5">St. Ann Place Day Shelter</td>
@@ -3390,8 +3555,8 @@ export default function NgoDashboard({
 
                       <tr className="hover:bg-stone-50/70 transition-colors">
                         <td className="px-5 py-3.5">
-                          <span className="font-bold text-stone-900 block">DON-102 • Paneer Curry &amp; Rice</span>
-                          <span className="text-[10px] text-stone-400">Curry • Hot Steam Pans</span>
+                          <span className="font-bold text-stone-900 block">DON-102 • Kesar Rasmalai &amp; Gulab Jamun</span>
+                          <span className="text-[10px] text-stone-400">Dairy / Dessert • Cold Chain 3.0°C</span>
                         </td>
                         <td className="px-5 py-3.5 font-semibold text-emerald-800">The Green Table Restaurant</td>
                         <td className="px-5 py-3.5 font-bold">35 Portions</td>
@@ -3406,11 +3571,11 @@ export default function NgoDashboard({
 
                       <tr className="hover:bg-stone-50/70 transition-colors">
                         <td className="px-5 py-3.5">
-                          <span className="font-bold text-stone-900 block">DON-103 • Artisan Sourdough</span>
-                          <span className="text-[10px] text-stone-400">Bakery • Fresh Morning Bake</span>
+                          <span className="font-bold text-stone-900 block">DON-103 • Dal Makhani &amp; Whole Wheat Naan</span>
+                          <span className="text-[10px] text-stone-400">Curry &amp; Naan • Hot Banquet Surplus</span>
                         </td>
                         <td className="px-5 py-3.5 font-semibold text-emerald-800">Sunrise Kitchen</td>
-                        <td className="px-5 py-3.5 font-bold">10 Boxes</td>
+                        <td className="px-5 py-3.5 font-bold">45 Portions (Feeds 55)</td>
                         <td className="px-5 py-3.5">
                           <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 inline-block">
                             ✓ FSSAI Passed (Sealed Kraft Bags)

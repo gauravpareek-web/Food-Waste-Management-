@@ -147,22 +147,52 @@ export default function RestaurantDashboard({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmittedToast, setFormSubmittedToast] = useState(false);
 
-  // Settings State
+  // Settings State & Sub-tabs
+  type SettingsSubTab = 'profile' | 'restaurant' | 'network' | 'security' | 'privacy';
+  const [settingsSubTab, setSettingsSubTab] = useState<SettingsSubTab>('profile');
   const [settingsName, setSettingsName] = useState(user?.name || 'Chef Michael');
   const [settingsEmail, setSettingsEmail] = useState(user?.email || 'chef@greentable.com');
   const [settingsPhone, setSettingsPhone] = useState(user?.phone || '+1 (561) 555-0192');
   const [settingsSavedToast, setSettingsSavedToast] = useState(false);
+  const [settingsToastMsg, setSettingsToastMsg] = useState('Settings updated successfully!');
 
-  // Data: Donations List
+  // Restaurant Details State
+  const [settingsRestName, setSettingsRestName] = useState('The Green Table Restaurant & Banquet');
+  const [settingsCuisine, setSettingsCuisine] = useState('North Indian, Mughlai & Gourmet Continental');
+  const [settingsFssaiNumber, setSettingsFssaiNumber] = useState(user?.fssaiLic || '10020011000123');
+  const [settingsFssaiVerified, setSettingsFssaiVerified] = useState(true);
+  const [settingsAddress, setSettingsAddress] = useState('125 Palm Street, West Palm Beach, FL');
+  const [settingsChef, setSettingsChef] = useState('Executive Chef Michael Vance');
+  const [settingsCapacity, setSettingsCapacity] = useState('250 kg surplus per batch capacity');
+
+  // Network Preferences State
+  const [settingsRadius, setSettingsRadius] = useState(12); // km
+  const [settingsAutoBroadcast, setSettingsAutoBroadcast] = useState(true);
+  const [settingsEmergencyPing, setSettingsEmergencyPing] = useState(true);
+  const [settingsMinBatchKg, setSettingsMinBatchKg] = useState(5);
+
+  // Security State
+  const [currentPassword, setCurrentPassword] = useState('••••••••');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [twoFactorAuth, setTwoFactorAuth] = useState(true);
+
+  // Privacy & Data Sharing State
+  const [anonymousDonation, setAnonymousDonation] = useState(false);
+  const [shareTransitTelemetry, setShareTransitTelemetry] = useState(true);
+  const [leaderboardVisible, setLeaderboardVisible] = useState(true);
+  const [taxExemptionSharing, setTaxExemptionSharing] = useState(true);
+
+  // Data: Donations List (Real authentic surplus dishes)
   const [donationsList, setDonationsList] = useState<DonationItem[]>([
     {
       id: 'DON-101',
-      title: 'Fresh Vegetables Box',
-      description: 'Assorted farm-fresh organic vegetables packed directly from kitchen stock, pre-washed, unchopped, and temperature-controlled.',
-      itemsList: ['Organic Spinach (4 kg)', 'Carrots & Cucumbers (5 kg)', 'Bell Peppers (3 kg)', 'Fresh Tomatoes (3 kg)'],
-      quantity: '15 kg',
-      servings: 'Feeds ~45 people',
-      category: 'Vegetables',
+      title: 'Rajma Masala & Steamed Jeera Basmati Rice',
+      description: 'Slow-cooked authentic Punjabi rajma masala with aromatic jeera basmati rice, warm phulkas, and fresh onion-cucumber salad packed in insulated thermal trays.',
+      itemsList: ['Punjabi Rajma Masala (18 L)', 'Steamed Jeera Basmati Rice (25 kg)', 'Whole Wheat Phulkas (80 pcs)', 'Pickled Spiced Salad (5 kg)'],
+      quantity: '40 kg',
+      servings: 'Feeds ~50 people',
+      category: 'Curry',
       status: 'Available',
       statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
       pickupDate: 'Apr 27, 2026',
@@ -170,29 +200,29 @@ export default function RestaurantDashboard({
       prepDate: 'Apr 27, 2026',
       prepTime: '09:00 AM',
       activeDuration: '1h 45m active',
-      expiresAt: 'Apr 28, 2026 • 06:00 PM',
-      expiryHoursLeft: 18,
-      totalShelfLifeHours: 24,
-      expiryPercent: 25,
-      safeUntil: 'Apr 28, 2026',
-      packaging: 'Moisture-controlled ventilated food crates',
-      storage: 'Refrigerated (2-4°C)',
-      storageTemp: '3.2°C logged',
+      expiresAt: 'Today • 05:00 PM',
+      expiryHoursLeft: 5.5,
+      totalShelfLifeHours: 8,
+      expiryPercent: 32,
+      safeUntil: 'Apr 27, 2026 (05:00 PM)',
+      packaging: 'Moisture-controlled insulated stainless thermal containers',
+      storage: 'Hot Holding (>65°C)',
+      storageTemp: '68.5°C logged (>65°C verified)',
       allergens: 'None',
-      dietary: ['100% Vegetarian', 'Raw Fresh Produce', 'Gluten-Free'],
-      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
-      distance: '4.2 km',
+      dietary: ['100% Vegetarian', 'High Protein', 'Gluten-Free Option'],
+      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80',
+      distance: '2.5 km',
       claimedBy: null,
       fssaiCompliant: true,
     },
     {
       id: 'DON-102',
-      title: 'Cooked Meals (Paneer Curry & Basmati Rice)',
-      description: 'Freshly prepared hot banquet lunch, untouched in heated steam pans, strictly unserved surplus meeting FSSAI surplus-food safety standards.',
-      itemsList: ['Shahi Paneer Curry (15 L)', 'Steamed Jeera Basmati Rice (20 kg)', 'Whole Wheat Rotis (70 pcs)', 'Fresh Cucumber Salad'],
-      quantity: '35 portions',
-      servings: 'Feeds ~35 adults',
-      category: 'Cooked Meals',
+      title: 'Kesar Rasmalai & Gulab Jamun Sweet Trays',
+      description: 'Freshly prepared saffron-infused cottage cheese dumplings in rich pistachio rabri alongside soft warm gulab jamuns, packed in hygienic refrigerated sweet crates.',
+      itemsList: ['Kesar Pistachio Rasmalai (60 portions)', 'Warm Gulab Jamun Trays (40 portions)', 'Cardamom Syrup Drizzle'],
+      quantity: '100 portions',
+      servings: 'Feeds ~60-70 people',
+      category: 'Dairy',
       status: 'Claimed',
       statusColor: 'bg-blue-100 text-blue-800 border-blue-200',
       pickupDate: 'Apr 27, 2026',
@@ -200,29 +230,29 @@ export default function RestaurantDashboard({
       prepDate: 'Apr 27, 2026',
       prepTime: '11:15 AM',
       activeDuration: '2h 10m active',
-      expiresAt: 'Today at 05:30 PM',
-      expiryHoursLeft: 3.5,
-      totalShelfLifeHours: 6,
-      expiryPercent: 58,
-      safeUntil: 'Apr 27, 2026 (5:30 PM)',
-      packaging: 'Sealed food-grade stainless thermal containers',
-      storage: 'Hot-held (>65°C)',
-      storageTemp: '68°C verified',
-      allergens: 'Dairy (Paneer & Butter)',
-      dietary: ['Vegetarian', 'Nut-Free', 'Fresh Cooked'],
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+      expiresAt: 'Tomorrow at 12:00 PM',
+      expiryHoursLeft: 23,
+      totalShelfLifeHours: 28,
+      expiryPercent: 18,
+      safeUntil: 'Apr 28, 2026 (12:00 PM)',
+      packaging: 'Sealed food-grade sweet containers (Cold Chain)',
+      storage: 'Refrigerated (2-4°C)',
+      storageTemp: '3.0°C verified',
+      allergens: 'Dairy (Milk, Pistachio & Almond)',
+      dietary: ['Vegetarian', 'Zero Preservatives', 'Dessert'],
+      image: 'https://images.unsplash.com/photo-1505253758473-96b3015f27eb?auto=format&fit=crop&w=600&q=80',
       distance: '2.5 km',
       claimedBy: 'Hope Foundation',
       fssaiCompliant: true,
     },
     {
       id: 'DON-103',
-      title: 'Artisan Bakery & Morning Breads',
-      description: 'Same-day baked artisan sourdough loaves, baguettes, and dinner rolls from morning bake cycle, properly wrapped in parchment bags.',
-      itemsList: ['Sourdough Loaves (6)', 'Whole Grain Baguettes (8)', 'Multigrain Dinner Rolls (40 pcs)'],
-      quantity: '10 boxes',
+      title: 'Dal Makhani & Whole Wheat Naan Meal Baskets',
+      description: 'Creamy slow-simmered black lentil dal makhani with clay-oven baked tandoori naans and fresh jeera pulao, untouched banquet surplus kept hot.',
+      itemsList: ['Dal Makhani Slow Simmered (20 L)', 'Tandoori Whole Wheat Naan (90 pcs)', 'Jeera Green Pea Pulao (20 kg)', 'Tangy Mint Chutney (4 L)'],
+      quantity: '45 portions',
       servings: 'Feeds ~50-60 people',
-      category: 'Bakery',
+      category: 'Curry',
       status: 'Pickup Pending',
       statusColor: 'bg-amber-100 text-amber-800 border-amber-200',
       pickupDate: 'Apr 27, 2026',
@@ -230,29 +260,29 @@ export default function RestaurantDashboard({
       prepDate: 'Apr 27, 2026',
       prepTime: '07:30 AM',
       activeDuration: '5h 15m active',
-      expiresAt: 'Apr 28, 2026 • 12:00 PM',
-      expiryHoursLeft: 22,
-      totalShelfLifeHours: 30,
-      expiryPercent: 30,
-      safeUntil: 'Apr 28, 2026',
-      packaging: 'Food-safe kraft paper bags & sealed cartons',
-      storage: 'Dry Room Temp',
-      storageTemp: '22°C ambient',
-      allergens: 'Gluten (Wheat)',
-      dietary: ['Vegetarian', 'Eggless', 'No Preservatives'],
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
+      expiresAt: 'Today at 07:30 PM',
+      expiryHoursLeft: 4.2,
+      totalShelfLifeHours: 8,
+      expiryPercent: 48,
+      safeUntil: 'Apr 27, 2026 (07:30 PM)',
+      packaging: 'Thermal insulated transport cambros',
+      storage: 'Hot Holding (>65°C)',
+      storageTemp: '69.0°C verified',
+      allergens: 'Dairy & Gluten',
+      dietary: ['Vegetarian', 'Fresh Cooked', 'High Energy'],
+      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
       distance: '6.7 km',
       claimedBy: 'Community Care Shelter',
       fssaiCompliant: true,
     },
     {
       id: 'DON-104',
-      title: 'Fresh Seasonal Fruits Pack',
-      description: 'Whole unpeeled fresh apples, bananas, and oranges, sorted and inspected for zero bruising, high nutrition for shelter children.',
-      itemsList: ['Sweet Oranges (3 kg)', 'Shimla Apples (3 kg)', 'Ripe Bananas (2 dozen)'],
-      quantity: '8 kg',
-      servings: 'Feeds ~25 people',
-      category: 'Fruits',
+      title: 'Shahi Paneer Tikka Gravy & Vegetable Dum Biryani',
+      description: 'Rich royal cottage cheese in satin tomato gravy paired with slow-cooked hyderabadi vegetable dum biryani, fried onions, and boondi raita.',
+      itemsList: ['Shahi Paneer Tikka Gravy (16 L)', 'Hyderabadi Veg Dum Biryani (22 kg)', 'Chilled Boondi Raita (10 L)', 'Roasted Papad & Pickles'],
+      quantity: '35 kg',
+      servings: 'Feeds ~45 people',
+      category: 'Rice',
       status: 'Available',
       statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
       pickupDate: 'Apr 27, 2026',
@@ -260,24 +290,24 @@ export default function RestaurantDashboard({
       prepDate: 'Apr 27, 2026',
       prepTime: '08:45 AM',
       activeDuration: '3h 30m active',
-      expiresAt: 'Apr 29, 2026 • 08:00 PM',
-      expiryHoursLeft: 48,
-      totalShelfLifeHours: 72,
-      expiryPercent: 15,
-      safeUntil: 'Apr 29, 2026',
-      packaging: 'Cushioned ventilated fruit crates',
-      storage: 'Cool Ambient',
-      storageTemp: '18°C ambient',
-      allergens: 'None',
-      dietary: ['100% Vegan', 'Raw Fruit', 'Gluten-Free'],
-      image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80',
+      expiresAt: 'Today • 06:30 PM',
+      expiryHoursLeft: 6.0,
+      totalShelfLifeHours: 8,
+      expiryPercent: 25,
+      safeUntil: 'Apr 27, 2026 (06:30 PM)',
+      packaging: 'Double-walled steam pan containers',
+      storage: 'Hot Holding (>65°C)',
+      storageTemp: '67.0°C ambient',
+      allergens: 'Dairy (Paneer & Butter)',
+      dietary: ['Vegetarian', 'Nut-Free', 'Fresh Banquet Surplus'],
+      image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80',
       distance: '3.8 km',
       claimedBy: null,
       fssaiCompliant: true,
     },
   ]);
 
-  // Data: NGO Requests List
+  // Data: NGO Requests List (Real authentic surplus dishes)
   const [requestsList, setRequestsList] = useState<Array<{
     id: string;
     org: string;
@@ -291,7 +321,7 @@ export default function RestaurantDashboard({
       id: 'REQ-201',
       org: 'Hope Foundation Shelter',
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
-      needs: 'Requested 35 Portions (Paneer Curry & Rice)',
+      needs: 'Requested 40 Portions Rajma Masala & Steamed Jeera Basmati Rice',
       date: 'Today • 12:45 PM',
       distance: '2.5 km away',
       status: 'pending',
@@ -300,7 +330,7 @@ export default function RestaurantDashboard({
       id: 'REQ-202',
       org: 'Community Care Kitchen',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-      needs: 'Requested 15 kg Fresh Vegetables Box',
+      needs: 'Requested 60 Portions Kesar Rasmalai & Gulab Jamun Sweet Trays',
       date: 'Today • 11:15 AM',
       distance: '4.2 km away',
       status: 'pending',
@@ -309,7 +339,7 @@ export default function RestaurantDashboard({
       id: 'REQ-203',
       org: 'Palm Beach Youth Shelter',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80',
-      needs: 'Requested 10 boxes Artisan Morning Breads',
+      needs: 'Requested 45 Portions Dal Makhani & Whole Wheat Naan Meal Baskets',
       date: 'Today • 09:30 AM',
       distance: '6.7 km away',
       status: 'accepted',
@@ -327,28 +357,28 @@ export default function RestaurantDashboard({
     {
       id: 'NOTIF-1',
       title: 'New Food Request Received',
-      desc: 'Hope Foundation submitted a priority pickup request for 35 portions of Paneer Curry & Rice.',
+      desc: 'Hope Foundation submitted a priority pickup request for 40 portions of Rajma Masala & Jeera Rice.',
       time: '10 min ago',
       color: 'bg-emerald-500',
     },
     {
       id: 'NOTIF-2',
       title: 'Food Safety Check Verified',
-      desc: 'FSSAI compliant temperature log verified for Fresh Vegetables Box (DON-101).',
+      desc: 'FSSAI compliant temperature log verified for Rajma Masala & Jeera Rice (DON-101) at 68.5°C.',
       time: '1 hour ago',
       color: 'bg-blue-500',
     },
     {
       id: 'NOTIF-3',
       title: 'Donation Claimed & Driver Dispatched',
-      desc: 'Volunteer Rahul Sharma is on route to collect Artisan Bakery box from your back kitchen dock.',
+      desc: 'Volunteer Rahul Sharma is on route to collect Kesar Rasmalai trays from your cold storage bay.',
       time: '3 hours ago',
       color: 'bg-amber-500',
     },
     {
       id: 'NOTIF-4',
       title: 'Tax Exemption Receipt Generated',
-      desc: '80G Certificate for 50kg rescued food has been archived in your History & Reports tab.',
+      desc: '80G Certificate for 40kg rescued food has been archived in your History & Reports tab.',
       time: 'Yesterday',
       color: 'bg-purple-500',
     },
@@ -2133,15 +2163,40 @@ export default function RestaurantDashboard({
                       <tr>
                         <td className="px-6 py-4 flex items-center gap-3">
                           <img
-                            src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=120&q=80"
-                            alt="Vegetable Box"
+                            src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=120&q=80"
+                            alt="Rajma Masala & Jeera Rice"
                             className="w-9 h-9 rounded-xl object-cover"
                           />
-                          <span className="font-bold text-stone-900">Vegetable Box</span>
+                          <div>
+                            <span className="font-bold text-stone-900 block">Rajma Masala &amp; Steamed Jeera Rice</span>
+                            <span className="text-[10px] text-stone-400">DON-095 • Hope Foundation</span>
+                          </div>
                         </td>
-                        <td className="px-6 py-4 font-semibold text-stone-700">15 kg</td>
-                        <td className="px-6 py-4 text-stone-600">Vegetables</td>
-                        <td className="px-6 py-4 text-stone-500">Apr 20, 2026</td>
+                        <td className="px-6 py-4 font-semibold text-stone-700">40 kg (Feeds 50)</td>
+                        <td className="px-6 py-4 text-stone-600">Curry / Hot-Held</td>
+                        <td className="px-6 py-4 text-stone-500">Apr 24, 2026</td>
+                        <td className="px-6 py-4">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                            Delivered
+                          </span>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td className="px-6 py-4 flex items-center gap-3">
+                          <img
+                            src="https://images.unsplash.com/photo-1505253758473-96b3015f27eb?auto=format&fit=crop&w=120&q=80"
+                            alt="Kesar Rasmalai & Gulab Jamun"
+                            className="w-9 h-9 rounded-xl object-cover"
+                          />
+                          <div>
+                            <span className="font-bold text-stone-900 block">Kesar Rasmalai &amp; Gulab Jamun Trays</span>
+                            <span className="text-[10px] text-stone-400">DON-092 • Community Kitchen</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-stone-700">80 portions</td>
+                        <td className="px-6 py-4 text-stone-600">Dairy / Cold Chain</td>
+                        <td className="px-6 py-4 text-stone-500">Apr 22, 2026</td>
                         <td className="px-6 py-4">
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                             Delivered
@@ -2153,55 +2208,64 @@ export default function RestaurantDashboard({
                         <td className="px-6 py-4 flex items-center gap-3">
                           <img
                             src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=120&q=80"
-                            alt="Cooked Meals"
+                            alt="Dal Makhani & Naan"
                             className="w-9 h-9 rounded-xl object-cover"
                           />
-                          <span className="font-bold text-stone-900">Cooked Meals</span>
+                          <div>
+                            <span className="font-bold text-stone-900 block">Dal Makhani &amp; Whole Wheat Naan</span>
+                            <span className="text-[10px] text-stone-400">DON-089 • Palm Beach Youth Center</span>
+                          </div>
                         </td>
-                        <td className="px-6 py-4 font-semibold text-stone-700">25 portions</td>
-                        <td className="px-6 py-4 text-stone-600">Meals</td>
-                        <td className="px-6 py-4 text-stone-500">Apr 18, 2026</td>
+                        <td className="px-6 py-4 font-semibold text-stone-700">45 portions</td>
+                        <td className="px-6 py-4 text-stone-600">Curry / Hot Pan</td>
+                        <td className="px-6 py-4 text-stone-500">Apr 19, 2026</td>
+                        <td className="px-6 py-4">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                            Completed
+                          </span>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td className="px-6 py-4 flex items-center gap-3">
+                          <img
+                            src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=120&q=80"
+                            alt="Shahi Paneer & Biryani"
+                            className="w-9 h-9 rounded-xl object-cover"
+                          />
+                          <div>
+                            <span className="font-bold text-stone-900 block">Shahi Paneer Tikka &amp; Veg Biryani</span>
+                            <span className="text-[10px] text-stone-400">DON-086 • Senior Shelter Hub</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-stone-700">35 kg</td>
+                        <td className="px-6 py-4 text-stone-600">Rice &amp; Curry</td>
+                        <td className="px-6 py-4 text-stone-500">Apr 16, 2026</td>
+                        <td className="px-6 py-4">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                            Completed
+                          </span>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td className="px-6 py-4 flex items-center gap-3">
+                          <img
+                            src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=120&q=80"
+                            alt="Chole Bhature"
+                            className="w-9 h-9 rounded-xl object-cover"
+                          />
+                          <div>
+                            <span className="font-bold text-stone-900 block">Amritsari Chole &amp; Bhature Trays</span>
+                            <span className="text-[10px] text-stone-400">DON-083 • Hope Foundation</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-stone-700">50 portions</td>
+                        <td className="px-6 py-4 text-stone-600">Curry / Cooked</td>
+                        <td className="px-6 py-4 text-stone-500">Apr 12, 2026</td>
                         <td className="px-6 py-4">
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                             Delivered
-                          </span>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td className="px-6 py-4 flex items-center gap-3">
-                          <img
-                            src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=120&q=80"
-                            alt="Bakery Items"
-                            className="w-9 h-9 rounded-xl object-cover"
-                          />
-                          <span className="font-bold text-stone-900">Bakery Items</span>
-                        </td>
-                        <td className="px-6 py-4 font-semibold text-stone-700">10 boxes</td>
-                        <td className="px-6 py-4 text-stone-600">Bakery</td>
-                        <td className="px-6 py-4 text-stone-500">Apr 15, 2026</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                            Completed
-                          </span>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td className="px-6 py-4 flex items-center gap-3">
-                          <img
-                            src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=120&q=80"
-                            alt="Fresh Fruits"
-                            className="w-9 h-9 rounded-xl object-cover"
-                          />
-                          <span className="font-bold text-stone-900">Fresh Fruits</span>
-                        </td>
-                        <td className="px-6 py-4 font-semibold text-stone-700">8 kg</td>
-                        <td className="px-6 py-4 text-stone-600">Fruits</td>
-                        <td className="px-6 py-4 text-stone-500">Apr 12, 2026</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                            Completed
                           </span>
                         </td>
                       </tr>
@@ -2246,114 +2310,543 @@ export default function RestaurantDashboard({
             )}
 
             {/* ================================================== */}
-            {/* TAB 9: SETTINGS (Panel 12)                         */}
+            {/* TAB 9: SETTINGS (Full 5-Tab Configuration)         */}
             {/* ================================================== */}
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 <div>
                   <h2 className="text-2xl font-extrabold text-stone-950 tracking-tight">
-                    Settings
+                    Settings &amp; Partner Configuration
                   </h2>
                   <p className="text-xs text-stone-500 mt-0.5">
-                    Manage your account details and restaurant profile.
+                    Manage kitchen credentials, FSSAI compliance, redistribution radius, and privacy controls.
                   </p>
                 </div>
 
                 {settingsSavedToast && (
                   <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    Profile settings successfully saved!
+                    {settingsToastMsg}
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                   
-                  {/* Left Tabs */}
-                  <div className="md:col-span-4 bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs space-y-1 text-xs font-semibold">
-                    <button className="w-full text-left px-3.5 py-2.5 rounded-xl bg-[#F59E0B] text-stone-950 font-bold">
+                  {/* Left Sub-Tabs Navigation */}
+                  <div className="md:col-span-4 bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs space-y-1.5 text-xs font-semibold">
+                    <button 
+                      onClick={() => setSettingsSubTab('profile')}
+                      className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
+                        settingsSubTab === 'profile'
+                          ? 'bg-[#F59E0B] text-stone-950 font-bold shadow-xs'
+                          : 'text-stone-600 hover:bg-stone-50'
+                      }`}
+                    >
                       Profile Information
                     </button>
-                    <button className="w-full text-left px-3.5 py-2.5 rounded-xl text-stone-600 hover:bg-stone-50">
-                      Restaurant Details
+                    <button 
+                      onClick={() => setSettingsSubTab('restaurant')}
+                      className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
+                        settingsSubTab === 'restaurant'
+                          ? 'bg-[#F59E0B] text-stone-950 font-bold shadow-xs'
+                          : 'text-stone-600 hover:bg-stone-50'
+                      }`}
+                    >
+                      Restaurant Details &amp; FSSAI
                     </button>
-                    <button className="w-full text-left px-3.5 py-2.5 rounded-xl text-stone-600 hover:bg-stone-50">
-                      Notification Preferences
+                    <button 
+                      onClick={() => setSettingsSubTab('network')}
+                      className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
+                        settingsSubTab === 'network'
+                          ? 'bg-[#F59E0B] text-stone-950 font-bold shadow-xs'
+                          : 'text-stone-600 hover:bg-stone-50'
+                      }`}
+                    >
+                      Network Preferences &amp; Radius
                     </button>
-                    <button className="w-full text-left px-3.5 py-2.5 rounded-xl text-stone-600 hover:bg-stone-50">
-                      Security & Passwords
+                    <button 
+                      onClick={() => setSettingsSubTab('security')}
+                      className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
+                        settingsSubTab === 'security'
+                          ? 'bg-[#F59E0B] text-stone-950 font-bold shadow-xs'
+                          : 'text-stone-600 hover:bg-stone-50'
+                      }`}
+                    >
+                      Security &amp; Passwords
                     </button>
-                    <button className="w-full text-left px-3.5 py-2.5 rounded-xl text-stone-600 hover:bg-stone-50">
-                      Privacy & Data Sharing
+                    <button 
+                      onClick={() => setSettingsSubTab('privacy')}
+                      className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
+                        settingsSubTab === 'privacy'
+                          ? 'bg-[#F59E0B] text-stone-950 font-bold shadow-xs'
+                          : 'text-stone-600 hover:bg-stone-50'
+                      }`}
+                    >
+                      Privacy &amp; Data Sharing
                     </button>
                   </div>
 
-                  {/* Right Form */}
+                  {/* Right Form Panels */}
                   <div className="md:col-span-8 bg-white p-6 sm:p-8 rounded-3xl border border-stone-200/80 shadow-xs space-y-6">
-                    <div className="flex items-center gap-4">
-                      <img
-                        src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=140&q=80"
-                        alt="Chef Michael"
-                        className="w-16 h-16 rounded-2xl object-cover border-2 border-[#F59E0B]"
-                      />
-                      <div>
-                        <h4 className="font-bold text-sm text-stone-900">Chef Michael</h4>
-                        <p className="text-xs text-stone-500">Restaurant Owner</p>
-                        <button className="text-xs font-bold text-[#D97706] hover:underline mt-1 cursor-pointer">
-                          Change Photo
-                        </button>
-                      </div>
-                    </div>
+                    
+                    {/* SUB-TAB 1: Profile Information */}
+                    {settingsSubTab === 'profile' && (
+                      <div className="space-y-6 animate-in fade-in">
+                        <div className="flex items-center gap-4">
+                          <img
+                            src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=140&q=80"
+                            alt="Chef Michael"
+                            className="w-16 h-16 rounded-2xl object-cover border-2 border-[#F59E0B]"
+                          />
+                          <div>
+                            <h4 className="font-bold text-sm text-stone-900">{settingsName}</h4>
+                            <p className="text-xs text-stone-500">Authorized Food Business Operator</p>
+                            <button className="text-xs font-bold text-[#D97706] hover:underline mt-1 cursor-pointer">
+                              Change Profile Photo
+                            </button>
+                          </div>
+                        </div>
 
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-stone-700 mb-1">
-                          Full Name
-                        </label>
-                        <input
-                          type="text"
-                          value={settingsName}
-                          onChange={(e) => setSettingsName(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
-                        />
-                      </div>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-stone-700 mb-1">
+                              Contact / Coordinator Full Name
+                            </label>
+                            <input
+                              type="text"
+                              value={settingsName}
+                              onChange={(e) => setSettingsName(e.target.value)}
+                              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                            />
+                          </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-stone-700 mb-1">
-                          Email Address
-                        </label>
-                        <input
-                          type="email"
-                          value={settingsEmail}
-                          onChange={(e) => setSettingsEmail(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
-                        />
-                      </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-stone-700 mb-1">
+                              Registered Email Address
+                            </label>
+                            <input
+                              type="email"
+                              value={settingsEmail}
+                              onChange={(e) => setSettingsEmail(e.target.value)}
+                              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                            />
+                          </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-stone-700 mb-1">
-                          Phone Number
-                        </label>
-                        <input
-                          type="text"
-                          value={settingsPhone}
-                          onChange={(e) => setSettingsPhone(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
-                        />
-                      </div>
-                    </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-stone-700 mb-1">
+                              Kitchen Phone Number (Direct)
+                            </label>
+                            <input
+                              type="text"
+                              value={settingsPhone}
+                              onChange={(e) => setSettingsPhone(e.target.value)}
+                              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                            />
+                          </div>
+                        </div>
 
-                    <div className="flex justify-end pt-4 border-t border-stone-200">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSettingsSavedToast(true);
-                          setTimeout(() => setSettingsSavedToast(false), 2000);
-                        }}
-                        className="px-6 py-2.5 rounded-xl bg-[#F59E0B] text-stone-950 font-bold text-xs hover:bg-[#D97706] shadow transition-all cursor-pointer"
-                      >
-                        Save Changes
-                      </button>
-                    </div>
+                        <div className="flex justify-end pt-4 border-t border-stone-200">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSettingsToastMsg('Profile Information successfully updated!');
+                              setSettingsSavedToast(true);
+                              setTimeout(() => setSettingsSavedToast(false), 2000);
+                            }}
+                            className="px-6 py-2.5 rounded-xl bg-[#F59E0B] text-stone-950 font-bold text-xs hover:bg-[#D97706] shadow transition-all cursor-pointer"
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SUB-TAB 2: Restaurant Details & FSSAI */}
+                    {settingsSubTab === 'restaurant' && (
+                      <div className="space-y-6 animate-in fade-in">
+                        <div>
+                          <h3 className="font-extrabold text-base text-stone-900">Commercial Kitchen &amp; FSSAI Registry</h3>
+                          <p className="text-xs text-stone-500">Government compliance and facility identification</p>
+                        </div>
+
+                        {/* FSSAI Verified Badge Box */}
+                        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                              <span className="text-xs font-bold text-emerald-900 uppercase tracking-wide">
+                                FSSAI License Status
+                              </span>
+                            </div>
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white">
+                              ✓ Verified Active
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-stone-700 font-medium">
+                            <div>License No: <span className="font-mono font-bold text-stone-900">{settingsFssaiNumber}</span></div>
+                            <div>Registry Authority: <span className="font-bold text-stone-900">Govt. of India FoSCoS</span></div>
+                            <div>Validity: <span className="font-bold text-emerald-700">Valid through 31-Dec-2028</span></div>
+                            <div>Category: <span className="font-bold text-stone-900">Central FBO Food Services</span></div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-stone-700 mb-1">
+                              Restaurant / Commercial Entity Name
+                            </label>
+                            <input
+                              type="text"
+                              value={settingsRestName}
+                              onChange={(e) => setSettingsRestName(e.target.value)}
+                              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-stone-700 mb-1">
+                              Primary Cuisine Specialization
+                            </label>
+                            <input
+                              type="text"
+                              value={settingsCuisine}
+                              onChange={(e) => setSettingsCuisine(e.target.value)}
+                              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-stone-700 mb-1">
+                              14-Digit FSSAI Registration / License Number
+                            </label>
+                            <input
+                              type="text"
+                              value={settingsFssaiNumber}
+                              onChange={(e) => setSettingsFssaiNumber(e.target.value)}
+                              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 font-mono text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-stone-700 mb-1">
+                              Commercial Kitchen Dispatch Address
+                            </label>
+                            <input
+                              type="text"
+                              value={settingsAddress}
+                              onChange={(e) => setSettingsAddress(e.target.value)}
+                              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-semibold text-stone-700 mb-1">
+                                Executive Chef In Charge
+                              </label>
+                              <input
+                                type="text"
+                                value={settingsChef}
+                                onChange={(e) => setSettingsChef(e.target.value)}
+                                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-stone-700 mb-1">
+                                Max Batch Holding Capacity
+                              </label>
+                              <input
+                                type="text"
+                                value={settingsCapacity}
+                                onChange={(e) => setSettingsCapacity(e.target.value)}
+                                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-4 border-t border-stone-200">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSettingsToastMsg('Restaurant & FSSAI details updated successfully!');
+                              setSettingsSavedToast(true);
+                              setTimeout(() => setSettingsSavedToast(false), 2000);
+                            }}
+                            className="px-6 py-2.5 rounded-xl bg-[#F59E0B] text-stone-950 font-bold text-xs hover:bg-[#D97706] shadow transition-all cursor-pointer"
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SUB-TAB 3: Network Preferences & Radius */}
+                    {settingsSubTab === 'network' && (
+                      <div className="space-y-6 animate-in fade-in">
+                        <div>
+                          <h3 className="font-extrabold text-base text-stone-900">Network &amp; Dispatch Preferences</h3>
+                          <p className="text-xs text-stone-500">Tune auto-broadcast and geographical matching for surplus pickups</p>
+                        </div>
+
+                        {/* Redistribution Radius Slider */}
+                        <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-stone-900">
+                              Redistribution Radius Limit
+                            </label>
+                            <span className="px-3 py-1 rounded-full text-xs font-black bg-[#F59E0B] text-stone-950">
+                              {settingsRadius} km radius
+                            </span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="2" 
+                            max="30" 
+                            value={settingsRadius}
+                            onChange={(e) => setSettingsRadius(Number(e.target.value))}
+                            className="w-full accent-[#0A3F2F] cursor-pointer"
+                          />
+                          <p className="text-[11px] text-stone-600">
+                            Only NGOs and shelters within {settingsRadius} km will receive instant priority push alerts for hot cooked food.
+                          </p>
+                        </div>
+
+                        <div className="space-y-3">
+                          {/* Toggle 1: Auto Broadcast */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:bg-stone-50/60 transition-colors">
+                            <div>
+                              <h5 className="font-bold text-xs text-stone-900">Instant Auto-Broadcast to Verified NGOs</h5>
+                              <p className="text-[11px] text-stone-500">Automatically ping all vetted local charities when a donation is posted.</p>
+                            </div>
+                            <input 
+                              type="checkbox" 
+                              checked={settingsAutoBroadcast}
+                              onChange={(e) => setSettingsAutoBroadcast(e.target.checked)}
+                              className="w-4 h-4 accent-[#0A3F2F] rounded cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Toggle 2: Emergency Surplus Ping */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:bg-stone-50/60 transition-colors">
+                            <div>
+                              <h5 className="font-bold text-xs text-stone-900">Emergency Rapid-Redistribution Ping</h5>
+                              <p className="text-[11px] text-stone-500">Send high-priority SMS alerts if hot surplus has less than 3 hours shelf-life.</p>
+                            </div>
+                            <input 
+                              type="checkbox" 
+                              checked={settingsEmergencyPing}
+                              onChange={(e) => setSettingsEmergencyPing(e.target.checked)}
+                              className="w-4 h-4 accent-[#0A3F2F] rounded cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Min Batch Threshold */}
+                          <div>
+                            <label className="block text-xs font-semibold text-stone-700 mb-1">
+                              Minimum Batch Weight for Driver Dispatch (kg)
+                            </label>
+                            <input 
+                              type="number"
+                              min="1"
+                              max="50"
+                              value={settingsMinBatchKg}
+                              onChange={(e) => setSettingsMinBatchKg(Number(e.target.value))}
+                              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-4 border-t border-stone-200">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSettingsToastMsg('Network Preferences saved successfully!');
+                              setSettingsSavedToast(true);
+                              setTimeout(() => setSettingsSavedToast(false), 2000);
+                            }}
+                            className="px-6 py-2.5 rounded-xl bg-[#F59E0B] text-stone-950 font-bold text-xs hover:bg-[#D97706] shadow transition-all cursor-pointer"
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SUB-TAB 4: Security & Passwords */}
+                    {settingsSubTab === 'security' && (
+                      <div className="space-y-6 animate-in fade-in">
+                        <div>
+                          <h3 className="font-extrabold text-base text-stone-900">Security Credentials &amp; Sessions</h3>
+                          <p className="text-xs text-stone-500">Protect your kitchen account and manage two-factor authentication</p>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-stone-700 mb-1">
+                              Current Password
+                            </label>
+                            <input
+                              type="password"
+                              value={currentPassword}
+                              onChange={(e) => setCurrentPassword(e.target.value)}
+                              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-semibold text-stone-700 mb-1">
+                                New Password
+                              </label>
+                              <input
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="Enter at least 8 characters"
+                                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-stone-700 mb-1">
+                                Confirm New Password
+                              </label>
+                              <input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Re-type new password"
+                                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
+                              />
+                            </div>
+                          </div>
+
+                          {/* 2FA Toggle */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:bg-stone-50/60 transition-colors mt-2">
+                            <div>
+                              <h5 className="font-bold text-xs text-stone-900">Two-Factor Authentication (SMS &amp; Email OTP)</h5>
+                              <p className="text-[11px] text-stone-500">Require an instant OTP when dispatching bulk food lots.</p>
+                            </div>
+                            <input 
+                              type="checkbox" 
+                              checked={twoFactorAuth}
+                              onChange={(e) => setTwoFactorAuth(e.target.checked)}
+                              className="w-4 h-4 accent-[#0A3F2F] rounded cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Active Sessions */}
+                          <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200 text-xs space-y-1.5">
+                            <span className="font-bold text-stone-900 block">Active Device Sessions</span>
+                            <div className="flex items-center justify-between text-stone-600 text-[11px]">
+                              <span>Chrome on Windows • Palm Beach Kitchen IP (Current)</span>
+                              <span className="text-emerald-700 font-bold">Active Now</span>
+                            </div>
+                            <div className="flex items-center justify-between text-stone-600 text-[11px]">
+                              <span>iOS Safari • Kitchen Tablet Terminal</span>
+                              <span className="text-stone-400">2 hours ago</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-4 border-t border-stone-200">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSettingsToastMsg('Security credentials updated successfully!');
+                              setSettingsSavedToast(true);
+                              setTimeout(() => setSettingsSavedToast(false), 2000);
+                            }}
+                            className="px-6 py-2.5 rounded-xl bg-[#F59E0B] text-stone-950 font-bold text-xs hover:bg-[#D97706] shadow transition-all cursor-pointer"
+                          >
+                            Update Password
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SUB-TAB 5: Privacy & Data Sharing */}
+                    {settingsSubTab === 'privacy' && (
+                      <div className="space-y-6 animate-in fade-in">
+                        <div>
+                          <h3 className="font-extrabold text-base text-stone-900">Privacy, Audit Logs &amp; Data Sharing</h3>
+                          <p className="text-xs text-stone-500">Control how your kitchen's rescue data is shared with NGOs and regulators</p>
+                        </div>
+
+                        <div className="space-y-3">
+                          {/* Anonymous Donor Mode */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:bg-stone-50/60 transition-colors">
+                            <div>
+                              <h5 className="font-bold text-xs text-stone-900">Anonymous Surplus Donor Mode</h5>
+                              <p className="text-[11px] text-stone-500">Hide your restaurant brand from public community feeds; visible only to verified NGO recipients.</p>
+                            </div>
+                            <input 
+                              type="checkbox" 
+                              checked={anonymousDonation}
+                              onChange={(e) => setAnonymousDonation(e.target.checked)}
+                              className="w-4 h-4 accent-[#0A3F2F] rounded cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Transit Telemetry */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:bg-stone-50/60 transition-colors">
+                            <div>
+                              <h5 className="font-bold text-xs text-stone-900">Share Real-Time Temperature &amp; GPS Telemetry</h5>
+                              <p className="text-[11px] text-stone-500">Transmit digital cold-chain probe logs to receiving NGOs during transit.</p>
+                            </div>
+                            <input 
+                              type="checkbox" 
+                              checked={shareTransitTelemetry}
+                              onChange={(e) => setShareTransitTelemetry(e.target.checked)}
+                              className="w-4 h-4 accent-[#0A3F2F] rounded cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Leaderboard */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:bg-stone-50/60 transition-colors">
+                            <div>
+                              <h5 className="font-bold text-xs text-stone-900">Public Sustainability Leaderboard Visibility</h5>
+                              <p className="text-[11px] text-stone-500">Feature your kitchen on the Zero-Waste Carbon Offset Hall of Fame.</p>
+                            </div>
+                            <input 
+                              type="checkbox" 
+                              checked={leaderboardVisible}
+                              onChange={(e) => setLeaderboardVisible(e.target.checked)}
+                              className="w-4 h-4 accent-[#0A3F2F] rounded cursor-pointer"
+                            />
+                          </div>
+
+                          {/* 80G Tax Exemption Sharing */}
+                          <div className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200 hover:bg-stone-50/60 transition-colors">
+                            <div>
+                              <h5 className="font-bold text-xs text-stone-900">Automated 80G Tax Exemption Receipts</h5>
+                              <p className="text-[11px] text-stone-500">Allow partner NGOs to automatically issue certified tax deduction receipts upon delivery.</p>
+                            </div>
+                            <input 
+                              type="checkbox" 
+                              checked={taxExemptionSharing}
+                              onChange={(e) => setTaxExemptionSharing(e.target.checked)}
+                              className="w-4 h-4 accent-[#0A3F2F] rounded cursor-pointer"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-4 border-t border-stone-200">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSettingsToastMsg('Privacy & Data Sharing preferences saved!');
+                              setSettingsSavedToast(true);
+                              setTimeout(() => setSettingsSavedToast(false), 2000);
+                            }}
+                            className="px-6 py-2.5 rounded-xl bg-[#F59E0B] text-stone-950 font-bold text-xs hover:bg-[#D97706] shadow transition-all cursor-pointer"
+                          >
+                            Save Changes
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                   </div>
 
                 </div>

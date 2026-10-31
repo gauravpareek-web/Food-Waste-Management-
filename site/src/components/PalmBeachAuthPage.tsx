@@ -11,8 +11,13 @@ import {
   ArrowRight,
   Check,
   CheckCircle2,
+  AlertCircle,
   Menu,
-  X
+  X,
+  FileCheck2,
+  Building,
+  RefreshCw,
+  Search
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -39,6 +44,14 @@ export default function PalmBeachAuthPage({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSignUpMode, setIsSignUpMode] = useState(false);
 
+  // FSSAI / Govt Registration State
+  const [orgName, setOrgName] = useState('The Green Table Restaurant & Banquet');
+  const [fssaiNumber, setFssaiNumber] = useState('10020011000123');
+  const [fssaiVerified, setFssaiVerified] = useState(false);
+  const [isVerifyingFssai, setIsVerifyingFssai] = useState(false);
+  const [fssaiError, setFssaiError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+
   // Sync initialRole if passed or changed
   useEffect(() => {
     setSelectedRole(initialRole);
@@ -47,18 +60,30 @@ export default function PalmBeachAuthPage({
 
   // Update default demo credentials when switching roles
   const updateDefaultCredentials = (role: AuthRole) => {
+    setFssaiVerified(false);
+    setFssaiError(null);
+    setAuthError(null);
     switch (role) {
       case 'restaurant':
         setEmail('restaurant@palmbeachharvest.com');
+        setOrgName('The Green Table Restaurant & Banquet');
+        setFssaiNumber('10020011000123');
         break;
       case 'ngo':
         setEmail('ngo@palmbeachharvest.com');
+        setOrgName('Hope Foundation Hunger Relief');
+        setFssaiNumber('DL/2023/0345678');
         break;
       case 'volunteer':
         setEmail('volunteer@palmbeachharvest.com');
+        setOrgName('Rahul Sharma');
+        setFssaiNumber('DL-01-2022-89210');
         break;
       case 'admin':
         setEmail('admin@palmbeachharvest.com');
+        setOrgName('Palm Beach Central Operations');
+        setFssaiNumber('ADM-CENTRAL-001');
+        setFssaiVerified(true);
         break;
     }
   };
@@ -68,8 +93,51 @@ export default function PalmBeachAuthPage({
     updateDefaultCredentials(role);
   };
 
+  // Live FSSAI Verification Simulator (Govt of India FoSCoS / Darpan)
+  const handleVerifyFssai = () => {
+    setFssaiError(null);
+    setAuthError(null);
+
+    const cleanNum = fssaiNumber.trim();
+    if (!cleanNum) {
+      setFssaiError('Please enter your FSSAI registration number.');
+      return;
+    }
+
+    if (selectedRole === 'restaurant' && cleanNum.replace(/\D/g, '').length !== 14) {
+      setFssaiError('FSSAI Food Business License must be exactly 14 digits (e.g. 10020011000123).');
+      return;
+    }
+
+    if (cleanNum.length < 5) {
+      setFssaiError('Please enter a valid registration / license identifier.');
+      return;
+    }
+
+    setIsVerifyingFssai(true);
+    setTimeout(() => {
+      setIsVerifyingFssai(false);
+      setFssaiVerified(true);
+      setFssaiError(null);
+    }, 750);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
+
+    // Mandatory FSSAI check during registration / sign up
+    if (isSignUpMode && !fssaiVerified && selectedRole !== 'admin') {
+      setAuthError(
+        selectedRole === 'restaurant'
+          ? 'Mandatory FSSAI Verification: You must verify your 14-digit FSSAI License Number before creating an account.'
+          : selectedRole === 'ngo'
+          ? 'Mandatory NGO Darpan / FSSAI Verification: Please verify your NGO Registration ID before proceeding.'
+          : 'Identity Verification Required: Please verify your ID before registering.'
+      );
+      return;
+    }
+
     setIsLoading(true);
 
     // Map AuthRole to UserProfile
@@ -77,13 +145,13 @@ export default function PalmBeachAuthPage({
     switch (selectedRole) {
       case 'restaurant':
         user = {
-          name: 'Chef Michael (The Green Table)',
+          name: orgName ? `Chef (${orgName})` : 'Chef Michael (The Green Table)',
           email: email || 'restaurant@palmbeachharvest.com',
           role: 'giver',
           roleType: 'restaurant',
-          org: 'The Green Table Restaurant',
-          subtype: 'Restaurant / Commercial Kitchen',
-          fssaiLic: 'FL-FBO-2024-8891',
+          org: orgName || 'The Green Table Restaurant',
+          subtype: 'FSSAI Certified Commercial Kitchen',
+          fssaiLic: fssaiNumber || '10020011000123',
           city: 'Palm Beach, FL',
           phone: '+1 (561) 555-0192',
           joinedDate: 'Verified Donor Partner since 2024',
@@ -95,9 +163,9 @@ export default function PalmBeachAuthPage({
           email: email || 'hope.foundation@palmbeachharvest.com',
           role: 'taker',
           roleType: 'ngo',
-          org: 'Hope Foundation',
+          org: orgName || 'Hope Foundation',
           subtype: 'Verified NGO / Hunger Relief',
-          fssaiLic: 'FL-NGO-2023-4102',
+          fssaiLic: fssaiNumber || 'DL/2023/0345678',
           city: 'Palm Beach, FL',
           phone: '+1 (561) 555-0144',
           joinedDate: 'Verified Charity Partner since 2023',
@@ -105,23 +173,25 @@ export default function PalmBeachAuthPage({
         break;
       case 'volunteer':
         user = {
-          name: 'Rahul Sharma',
+          name: orgName || 'Rahul Sharma',
           email: email || 'volunteer@palmbeachharvest.com',
           role: 'taker',
           roleType: 'volunteer',
           org: 'Palm Beach Harvest Volunteer Fleet',
           subtype: 'Verified Volunteer Driver',
-          fssaiLic: 'VOL-PB-2024-099',
+          fssaiLic: fssaiNumber || 'VOL-PB-2024-099',
           city: 'Palm Beach County, FL',
           phone: '+1 (561) 555-0188',
           joinedDate: 'Active Volunteer since 2024',
         };
         break;
       case 'admin':
+      default:
         user = {
           name: 'Platform Coordinator (Admin)',
           email: email || 'admin@palmbeachharvest.com',
           role: 'giver',
+          roleType: 'admin',
           org: 'Palm Beach Harvest Central Operations',
           subtype: 'Platform Operations Admin',
           fssaiLic: 'ADMIN-PB-2026',
@@ -422,19 +492,151 @@ export default function PalmBeachAuthPage({
 
             </div>
 
-            {/* Login Form */}
+            {/* Auth Error Banner */}
+            {authError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-start gap-2 animate-in fade-in">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <div className="font-bold">Registration Verification Notice</div>
+                  <p className="text-[11px] leading-relaxed">{authError}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Login / Registration Form */}
             <form onSubmit={handleSubmit} className="space-y-3">
               
-              {/* Email Input */}
+              {/* Sign Up Specific: Organization / Entity Name */}
+              {isSignUpMode && (
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-bold text-stone-700">
+                    {selectedRole === 'restaurant'
+                      ? 'Restaurant / Kitchen Name *'
+                      : selectedRole === 'ngo'
+                      ? 'NGO / Charity Name *'
+                      : 'Full Name *'}
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                      <Building className="w-4 h-4" />
+                    </span>
+                    <input 
+                      type="text" 
+                      value={orgName}
+                      onChange={(e) => setOrgName(e.target.value)}
+                      placeholder={selectedRole === 'restaurant' ? 'e.g. The Green Table Restaurant' : 'e.g. Hope Foundation'}
+                      required
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 bg-white text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 transition-all"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Sign Up Specific: Mandatory FSSAI / Govt License Verification */}
+              {isSignUpMode && selectedRole !== 'admin' && (
+                <div className="p-3.5 bg-amber-50/70 border border-amber-200/90 rounded-2xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <FileCheck2 className="w-4 h-4 text-amber-700" />
+                      <span className="text-xs font-black text-stone-900 uppercase tracking-tight">
+                        {selectedRole === 'restaurant' 
+                          ? 'FSSAI License Verification (Mandatory)' 
+                          : selectedRole === 'ngo' 
+                          ? 'NGO Darpan / FSSAI License' 
+                          : 'Government Photo ID / Driver License'}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-amber-900 bg-amber-200/70 px-2 py-0.5 rounded-full">
+                      Required by Law
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-stone-600 leading-tight">
+                    {selectedRole === 'restaurant'
+                      ? 'Enter your 14-digit FSSAI License or Registration Number as per FSS (Safe Food and Share Food) Regulations, 2019.'
+                      : selectedRole === 'ngo'
+                      ? 'Enter your Govt. of India NITI Aayog NGO Darpan ID or FSSAI Food Recovery Registration Number.'
+                      : 'Enter your valid Driving License or Govt Photo ID for volunteer logistics authorization.'}
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <input 
+                        type="text" 
+                        value={fssaiNumber}
+                        onChange={(e) => {
+                          setFssaiNumber(e.target.value);
+                          setFssaiVerified(false);
+                          setFssaiError(null);
+                        }}
+                        placeholder={selectedRole === 'restaurant' ? '14-Digit FSSAI License (e.g. 10020011000123)' : 'Registration Number'}
+                        className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white font-mono text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#F59E0B]"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleVerifyFssai}
+                      disabled={isVerifyingFssai}
+                      className="px-3 py-2 bg-stone-900 hover:bg-black text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+                    >
+                      {isVerifyingFssai ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Verifying...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-3.5 h-3.5" />
+                          <span>Verify with FoSCoS</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Verification Error */}
+                  {fssaiError && (
+                    <div className="p-2 bg-red-100/80 border border-red-300 rounded-xl text-[11px] text-red-800 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                      <span>{fssaiError}</span>
+                    </div>
+                  )}
+
+                  {/* Verification Success Card */}
+                  {fssaiVerified && (
+                    <div className="p-2.5 bg-emerald-50 border border-emerald-300 rounded-xl space-y-1">
+                      <div className="flex items-center gap-1.5 text-emerald-800 text-xs font-black">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>
+                          {selectedRole === 'restaurant'
+                            ? '✓ FSSAI License Verified Active (Govt. of India)'
+                            : selectedRole === 'ngo'
+                            ? '✓ NGO Darpan / FSSAI Registry Verified Active'
+                            : '✓ Volunteer ID Verified Valid'}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-stone-700 flex flex-wrap gap-x-3 gap-y-0.5 font-medium">
+                        <span>Reg No: <strong className="font-mono text-stone-900">{fssaiNumber}</strong></span>
+                        <span>Status: <strong className="text-emerald-700">Active &amp; Compliant</strong></span>
+                        <span>Valid Until: <strong className="text-stone-900">31-Dec-2028</strong></span>
+                      </div>
+                      <p className="text-[10px] text-stone-500 italic">
+                        Food Safety and Standards Authority of India (FoSCoS) portal verification confirmed.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Email / FSSAI Login Input */}
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                   <Mail className="w-4 h-4" />
                 </span>
                 <input 
-                  type="email" 
+                  type="text" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@palmbeachharvest.com"
+                  placeholder={isSignUpMode ? "official.email@organization.com" : "Email or 14-Digit FSSAI License Number"}
                   required
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 bg-white text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/20 transition-all"
                 />

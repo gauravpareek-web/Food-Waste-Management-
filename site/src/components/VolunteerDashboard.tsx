@@ -187,68 +187,65 @@ export default function VolunteerDashboard({
   const [tasks, setTasks] = useState<VolunteerTask[]>([
     {
       id: 'TASK-101',
-      title: 'Pick Up Fresh Vegetables Box',
-      donor: 'Green Table Restaurant',
+      title: 'Pick Up Rajma Masala & Steamed Jeera Basmati Rice',
+      donor: 'The Green Table Restaurant',
       distance: '2.4 km',
       time: 'Today • 11:00 AM',
       status: 'In Progress',
-      category: 'Vegetables',
-      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80',
+      category: 'Curry / Cooked Meals',
+      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80',
       pickupAddress: '125 Palm Street, West Palm Beach, FL',
       deliveryAddress: 'Hope Foundation Community Center, West Palm Beach, FL',
-      quantity: '15 kg',
-      servings: 'Feeds 35-40 people',
+      quantity: '40 kg',
+      servings: 'Feeds 50 people',
       recipientOrg: 'Hope Foundation',
       contactPhone: '+1 (561) 555-0192',
       otpCode: '5821',
       prepTime: 'Today, 09:30 AM',
       activeDuration: '1h 45m active',
-      expiresAt: 'Today, 04:30 PM',
-      expiryHoursLeft: 4.5,
-      expiryPercent: 35,
-      totalShelfLifeHours: 7,
+      expiresAt: 'Today, 05:00 PM',
+      expiryHoursLeft: 5.5,
+      expiryPercent: 32,
+      totalShelfLifeHours: 8,
       itemsList: [
-        'Hydroponic Crisp Lettuce',
-        'Cherry Vine Tomatoes',
-        'English Cucumbers',
-        'Organic Farm Carrots',
-        'Fresh Herb Sprigs'
+        'Punjabi Rajma Masala (18 L)',
+        'Steamed Jeera Basmati Rice (25 kg)',
+        'Whole Wheat Phulkas (80 pcs)',
+        'Pickled Spiced Salad'
       ],
-      dietary: ['100% Vegetarian', 'FSSAI Certified', 'Tamper-Evident Sealed'],
+      dietary: ['100% Vegetarian', 'FSSAI Certified Safe', 'Tamper-Evident Thermal Sealed'],
       allergens: 'None reported',
-      storage: 'Refrigerated Insulated (3.5°C)',
-      storageTemp: '3.5°C Insulated Transit',
-      packaging: 'Food-Grade Ventilated Crates',
-      description: 'Organic hydroponic greens and farm-fresh garden produce harvested and cleaned this morning. 100% fresh and untouched surplus.'
+      storage: 'Hot Holding (>65°C)',
+      storageTemp: '68.5°C Insulated Hot Pan',
+      packaging: 'Thermal Stainless Insulated Containers',
+      description: 'Slow-cooked authentic Punjabi rajma masala with aromatic jeera basmati rice, warm phulkas, and fresh salad packed in insulated thermal trays.'
     },
     {
       id: 'TASK-102',
-      title: 'Collect Cooked Meals',
-      donor: 'Sunrise Kitchen',
+      title: 'Collect Kesar Rasmalai & Gulab Jamun Sweet Trays',
+      donor: 'Sunrise Sweets & Banquet',
       distance: '3.1 km',
       time: 'Today • 01:00 PM',
       status: 'Scheduled',
-      category: 'Cooked Meals',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80',
+      category: 'Dairy / Dessert',
+      image: 'https://images.unsplash.com/photo-1505253758473-96b3015f27eb?auto=format&fit=crop&w=400&q=80',
       pickupAddress: '88 Clematis St, West Palm Beach, FL',
       deliveryAddress: 'Palm Beach Senior Living Center, FL',
-      quantity: '25 portions',
-      servings: 'Feeds 25-30 people',
+      quantity: '100 portions',
+      servings: 'Feeds 60-70 people',
       recipientOrg: 'Senior Relief Program',
       contactPhone: '+1 (561) 555-0178',
       otpCode: '7419',
       prepTime: 'Today, 11:15 AM',
       activeDuration: '1h 15m active',
-      expiresAt: 'Today, 03:15 PM',
-      expiryHoursLeft: 2.0,
-      expiryPercent: 60,
-      totalShelfLifeHours: 4,
+      expiresAt: 'Tomorrow, 12:00 PM',
+      expiryHoursLeft: 23.0,
+      expiryPercent: 18,
+      totalShelfLifeHours: 28,
       itemsList: [
-        'Dal Makhani (Slow-cooked black lentils)',
-        'Jeera Basmati Rice',
-        'Steamed Subzi (Seasonal Mix Veg)',
-        'Fresh Phulka Chapati',
-        'Mint Coriander Chutney'
+        'Kesar Pistachio Rasmalai (60 portions)',
+        'Warm Gulab Jamun Trays (40 portions)',
+        'Cardamom Pistachio Rabri'
       ],
       dietary: ['100% Vegetarian', 'Hot Holding Standard', 'FSSAI Safe'],
       allergens: 'Contains Dairy (Butter in Dal)',
@@ -973,7 +970,7 @@ export default function VolunteerDashboard({
                       <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 text-xs flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Utensils className="w-4 h-4 text-emerald-600" />
-                          <span className="font-bold text-stone-800">Fresh Vegetables Box • 15 kg (Feeds 35-40)</span>
+                          <span className="font-bold text-stone-800">Rajma Masala &amp; Steamed Jeera Rice • 40 kg (Feeds 50)</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <a
@@ -1394,8 +1391,8 @@ export default function VolunteerDashboard({
                         <div className="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-emerald-600 ring-4 ring-emerald-100" />
                         <div>
                           <span className="font-black text-xs text-stone-900 block">11:00 AM</span>
-                          <h5 className="font-bold text-xs text-stone-800 mt-0.5">Pick up Fresh Vegetables Box</h5>
-                          <p className="text-[11px] text-stone-500">Green Table Restaurant ➔ Hope Foundation Center</p>
+                          <h5 className="font-bold text-xs text-stone-800 mt-0.5">Pick up Rajma Masala &amp; Steamed Jeera Basmati Rice</h5>
+                          <p className="text-[11px] text-stone-500">The Green Table Restaurant ➔ Hope Foundation Center</p>
                         </div>
                       </div>
 
@@ -1404,8 +1401,8 @@ export default function VolunteerDashboard({
                         <div className="absolute -left-6 top-0.5 w-4 h-4 rounded-full border-2 border-emerald-600 bg-white ring-4 ring-white" />
                         <div>
                           <span className="font-black text-xs text-stone-900 block">01:00 PM</span>
-                          <h5 className="font-bold text-xs text-stone-800 mt-0.5">Collect Cooked Meals</h5>
-                          <p className="text-[11px] text-stone-500">Sunrise Kitchen ➔ Palm Beach Senior Center</p>
+                          <h5 className="font-bold text-xs text-stone-800 mt-0.5">Collect Kesar Rasmalai &amp; Gulab Jamun Sweet Trays</h5>
+                          <p className="text-[11px] text-stone-500">Sunrise Sweets &amp; Banquet ➔ Palm Beach Senior Center</p>
                         </div>
                       </div>
 
@@ -1657,7 +1654,7 @@ export default function VolunteerDashboard({
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-stone-200/60">
                     <span className="text-stone-500">Food Cargo:</span>
-                    <strong className="text-right text-emerald-800">Fresh Vegetables (15 kg • Feeds 35)</strong>
+                    <strong className="text-right text-emerald-800">Rajma Masala &amp; Steamed Jeera Rice (40 kg • Feeds 50)</strong>
                   </div>
                   <div className="flex justify-between items-center pt-1.5">
                     <span className="text-stone-700 font-bold uppercase text-[11px]">Handover Verification OTP:</span>
@@ -2170,7 +2167,7 @@ export default function VolunteerDashboard({
                   </div>
                   <div className="flex-1">
                     <h5 className="font-bold text-xs text-stone-900">New Pickup Task Assigned</h5>
-                    <p className="text-xs text-stone-600 mt-0.5">Green Table Restaurant has 15 kg Fresh Vegetables ready for pickup.</p>
+                    <p className="text-xs text-stone-600 mt-0.5">The Green Table Restaurant has 40 kg Rajma Masala &amp; Steamed Jeera Basmati Rice ready for pickup.</p>
                     <span className="text-[10px] text-stone-400 mt-1 block font-semibold">3 hours ago</span>
                   </div>
                 </div>
@@ -2181,7 +2178,7 @@ export default function VolunteerDashboard({
                   </div>
                   <div className="flex-1">
                     <h5 className="font-bold text-xs text-stone-900">Delivery Confirmed!</h5>
-                    <p className="text-xs text-stone-600 mt-0.5">Community Center staff signed off on 12 kg Salad donation.</p>
+                    <p className="text-xs text-stone-600 mt-0.5">Community Center staff signed off on 60 Portions Kesar Rasmalai &amp; Gulab Jamun sweet donation.</p>
                     <span className="text-[10px] text-stone-400 mt-1 block font-semibold">2 hours ago</span>
                   </div>
                 </div>

@@ -96,7 +96,7 @@ function seedInitialDonations() {
 
   const now = new Date();
   
-  // Sample 1: Cooked Meals (Rice + Curry)
+  // Sample 1: Rajma Masala & Steamed Jeera Basmati Rice
   const prep1 = new Date(now.getTime() - 2 * 60 * 60 * 1000); // 2 hours ago
   const exp1 = new Date(prep1.getTime() + 6 * 60 * 60 * 1000); // 6 hr shelf life
 
@@ -106,27 +106,27 @@ function seedInitialDonations() {
     'The Green Table Restaurant',
     '+1 (561) 555-0192',
     '125 Palm Street, West Palm Beach, FL',
-    'Cooked Meals (Paneer Curry & Basmati Rice)',
+    'Rajma Masala & Steamed Jeera Basmati Rice',
     'Curry',
-    'Freshly prepared hot banquet lunch, untouched in heated steam pans, strictly unserved surplus meeting FSSAI surplus-food safety standards.',
-    '35 portions',
-    'Feeds ~35 adults',
-    JSON.stringify(['Shahi Paneer Curry (15 L)', 'Steamed Jeera Basmati Rice (20 kg)', 'Whole Wheat Rotis (70 pcs)', 'Fresh Cucumber Salad']),
+    'Slow-cooked authentic Punjabi rajma masala with aromatic jeera basmati rice, warm phulkas, and fresh salad packed in insulated thermal trays.',
+    '40 kg',
+    'Feeds ~50 people',
+    JSON.stringify(['Punjabi Rajma Masala (18 L)', 'Steamed Jeera Basmati Rice (25 kg)', 'Whole Wheat Phulkas (80 pcs)', 'Pickled Spiced Salad (5 kg)']),
     prep1.toISOString(),
     'Hot Holding',
-    '68°C verified (>65°C)',
+    '68.5°C verified (>65°C)',
     1,
     0,
-    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80',
     1,
-    'Dairy (Paneer & Butter)',
-    JSON.stringify(['Vegetarian', 'Nut-Free', 'Fresh Cooked']),
-    'Sealed food-grade stainless thermal containers',
-    '01:30 PM - 03:00 PM',
+    'None',
+    JSON.stringify(['100% Vegetarian', 'High Protein', 'Gluten-Free Option']),
+    'Moisture-controlled insulated stainless thermal containers',
+    '10:00 AM - 12:00 PM',
     exp1.toISOString(),
     6.0,
     'verified',
-    'Verified by Chef Michael. Continuous hot-holding maintained at 68°C. Safe for human redistribution.',
+    'Verified by Chef Michael. Continuous hot-holding maintained at 68.5°C. Safe for human redistribution.',
     'available',
     null,
     '2.4 km',
@@ -134,75 +134,75 @@ function seedInitialDonations() {
     now.toISOString()
   );
 
-  // Sample 2: Fresh Vegetables Box
+  // Sample 2: Kesar Rasmalai & Gulab Jamun Sweet Trays
   const prep2 = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-  const exp2 = new Date(prep2.getTime() + 48 * 60 * 60 * 1000);
+  const exp2 = new Date(prep2.getTime() + 24 * 60 * 60 * 1000);
 
   insertDonation.run(
     'DON-102',
     'USR-DON-01',
-    'The Green Table Restaurant',
-    '+1 (561) 555-0192',
-    '125 Palm Street, West Palm Beach, FL',
-    'Fresh Farm Vegetable Box',
-    'Vegetables',
-    'Assorted farm-fresh organic vegetables packed directly from kitchen stock, pre-washed, unchopped, and temperature-controlled.',
-    '15 kg',
-    'Feeds ~45 people',
-    JSON.stringify(['Organic Spinach (4 kg)', 'Carrots & Cucumbers (5 kg)', 'Bell Peppers (3 kg)', 'Fresh Tomatoes (3 kg)']),
+    'Sunrise Sweets & Banquet',
+    '+1 (561) 555-0178',
+    '88 Clematis St, West Palm Beach, FL',
+    'Kesar Rasmalai & Gulab Jamun Sweet Trays',
+    'Dairy',
+    'Freshly prepared saffron-infused cottage cheese dumplings in rich pistachio rabri alongside soft warm gulab jamuns, packed in hygienic refrigerated sweet crates.',
+    '100 portions',
+    'Feeds ~60-70 people',
+    JSON.stringify(['Kesar Pistachio Rasmalai (60 portions)', 'Warm Gulab Jamun Trays (40 portions)', 'Cardamom Syrup Drizzle']),
     prep2.toISOString(),
     'Refrigerated',
-    '3.2°C logged (2-4°C)',
+    '3.0°C verified (2-4°C)',
     1,
     0,
-    'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1505253758473-96b3015f27eb?auto=format&fit=crop&w=600&q=80',
     1,
-    'None',
-    JSON.stringify(['100% Vegetarian', 'Raw Fresh Produce', 'Gluten-Free']),
-    'Moisture-controlled ventilated food crates',
-    '10:00 AM - 12:00 PM',
+    'Dairy (Milk, Pistachio & Almond)',
+    JSON.stringify(['Vegetarian', 'Zero Preservatives', 'Cold Chain Certified']),
+    'Sealed food-grade sweet containers (Cold Chain)',
+    '01:30 PM - 03:00 PM',
     exp2.toISOString(),
-    48.0,
+    24.0,
     'verified',
-    'Cold chain maintained. Raw produce inspected for zero spoilage.',
+    'Cold chain maintained at 3.0°C. Pure dairy sweets verified untouched banquet surplus.',
     'available',
     null,
-    '4.2 km',
+    '3.1 km',
     prep2.toISOString(),
     now.toISOString()
   );
 
-  // Sample 3: Artisan Bakery Loaves
-  const prep3 = new Date(now.getTime() - 5 * 60 * 60 * 1000);
-  const exp3 = new Date(prep3.getTime() + 36 * 60 * 60 * 1000);
+  // Sample 3: Dal Makhani & Whole Wheat Naan Meal Baskets
+  const prep3 = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+  const exp3 = new Date(prep3.getTime() + 6 * 60 * 60 * 1000);
 
   insertDonation.run(
     'DON-103',
     'USR-DON-02',
-    'Palm Beach Bakery',
+    'Royal Heritage Kitchen',
     '+1 (561) 555-0143',
     '310 Royal Poinciana Way, Palm Beach, FL',
-    'Artisan Bakery & Morning Breads',
-    'Bakery',
-    'Same-day baked artisan sourdough loaves, baguettes, and dinner rolls from morning bake cycle, properly wrapped in parchment bags.',
-    '10 boxes',
+    'Dal Makhani & Whole Wheat Naan Meal Baskets',
+    'Curry',
+    'Creamy slow-simmered black lentil dal makhani with clay-oven baked tandoori naans and fresh jeera pulao, untouched banquet surplus kept hot.',
+    '45 portions',
     'Feeds ~50-60 people',
-    JSON.stringify(['Sourdough Loaves (6)', 'Whole Grain Baguettes (8)', 'Multigrain Dinner Rolls (40 pcs)']),
+    JSON.stringify(['Dal Makhani Slow Simmered (20 L)', 'Tandoori Whole Wheat Naan (90 pcs)', 'Jeera Green Pea Pulao (20 kg)', 'Tangy Mint Chutney (4 L)']),
     prep3.toISOString(),
-    'Room Temperature',
-    '22°C ambient',
+    'Hot Holding',
+    '69.0°C verified (>65°C)',
     1,
     0,
-    'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
     1,
-    'Gluten (Wheat)',
-    JSON.stringify(['Vegetarian', 'Eggless', 'No Preservatives']),
-    'Food-safe kraft paper bags & sealed cartons',
+    'Dairy & Gluten',
+    JSON.stringify(['Vegetarian', 'Fresh Cooked', 'High Energy']),
+    'Thermal insulated transport cambros',
     '04:00 PM - 06:00 PM',
     exp3.toISOString(),
-    36.0,
+    6.0,
     'verified',
-    'Dry room temperature holding. Low moisture, no bacterial risk.',
+    'Verified hot holding at 69.0°C. Compliant with safe redistribution protocols.',
     'available',
     null,
     '4.0 km',
