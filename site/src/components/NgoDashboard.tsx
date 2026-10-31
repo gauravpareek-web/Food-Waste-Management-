@@ -46,7 +46,12 @@ import {
   Thermometer,
   Radio,
   MessageSquare,
-  Key
+  Key,
+  Download,
+  FileText,
+  Award,
+  Activity,
+  Droplets
 } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -140,6 +145,41 @@ export default function NgoDashboard({
     { day: 'Fri', label: 'Friday', meals: 380, kg: 105, co2: 148, topCat: 'Curry & Roti', percent: 85 },
     { day: 'Sat', label: 'Saturday', meals: 290, kg: 82, co2: 114, topCat: 'Fresh Fruits', percent: 72 },
     { day: 'Sun', label: 'Sunday (Today)', meals: 480, kg: 135, co2: 188, topCat: 'Banquet Surplus', percent: 100 },
+  ];
+
+  // Dedicated Impact Analytics Tab States (Dual Histograms)
+  const [analyticsMealMetric, setAnalyticsMealMetric] = useState<'meals' | 'kg' | 'shelters'>('meals');
+  const [analyticsTimeRange, setAnalyticsTimeRange] = useState<'week' | 'month' | 'quarter'>('week');
+  const [hoveredAnalyticsMealIndex, setHoveredAnalyticsMealIndex] = useState<number | null>(null);
+
+  const [analyticsEcoMetric, setAnalyticsEcoMetric] = useState<'co2' | 'methane' | 'water' | 'trees'>('co2');
+  const [hoveredAnalyticsEcoIndex, setHoveredAnalyticsEcoIndex] = useState<number | null>(null);
+
+  const mealDistributionAnalyticsData = [
+    { day: 'Mon', label: 'Monday, Oct 27', meals: 240, kg: 68, shelters: 4, topPartner: 'Green Table Restaurant', topCategory: 'Fresh Veggies & Dal' },
+    { day: 'Tue', label: 'Tuesday, Oct 28', meals: 310, kg: 88, shelters: 5, topPartner: 'Sunrise Kitchen', topCategory: 'Paneer Curry & Rice' },
+    { day: 'Wed', label: 'Wednesday, Oct 29', meals: 195, kg: 55, shelters: 3, topPartner: 'Palm Beach Bakery', topCategory: 'Whole Grain Breads' },
+    { day: 'Thu', label: 'Thursday, Oct 30', meals: 420, kg: 118, shelters: 7, topPartner: 'Coastal Grand Hotel', topCategory: 'Buffet Cooked Meals' },
+    { day: 'Fri', label: 'Friday, Oct 31', meals: 380, kg: 105, shelters: 6, topPartner: 'Sunrise Kitchen', topCategory: 'Vegetable Biryani' },
+    { day: 'Sat', label: 'Saturday, Nov 01', meals: 290, kg: 82, shelters: 5, topPartner: 'Green Table Restaurant', topCategory: 'Garden Salads' },
+    { day: 'Sun', label: 'Sunday, Nov 02', meals: 480, kg: 135, shelters: 8, topPartner: 'Banquet Hall West', topCategory: 'Event Surplus Feasts' },
+  ];
+
+  const environmentalImpactData = [
+    { day: 'Mon', label: 'Monday, Oct 27', co2: 95, methane: 24, water: 1850, trees: 8, auditGrade: 'Grade A+' },
+    { day: 'Tue', label: 'Tuesday, Oct 28', co2: 122, methane: 31, water: 2400, trees: 11, auditGrade: 'Grade A+' },
+    { day: 'Wed', label: 'Wednesday, Oct 29', co2: 76, methane: 19, water: 1480, trees: 7, auditGrade: 'Grade A' },
+    { day: 'Thu', label: 'Thursday, Oct 30', co2: 164, methane: 42, water: 3250, trees: 14, auditGrade: 'Grade A+' },
+    { day: 'Fri', label: 'Friday, Oct 31', co2: 148, methane: 38, water: 2920, trees: 13, auditGrade: 'Grade A+' },
+    { day: 'Sat', label: 'Saturday, Nov 01', co2: 114, methane: 29, water: 2260, trees: 10, auditGrade: 'Grade A' },
+    { day: 'Sun', label: 'Sunday, Nov 02', co2: 188, methane: 48, water: 3740, trees: 16, auditGrade: 'Grade A+' },
+  ];
+
+  const categoryBreakdownData = [
+    { name: 'Cooked Meals & Curries', percent: 42, meals: 972, color: 'bg-emerald-600', textColor: 'text-emerald-700' },
+    { name: 'Fresh Vegetables & Produce', percent: 28, meals: 648, color: 'bg-[#F59E0B]', textColor: 'text-amber-700' },
+    { name: 'Artisanal Bakery & Breads', percent: 18, meals: 416, color: 'bg-teal-600', textColor: 'text-teal-700' },
+    { name: 'Dairy & Sealed Packaged Goods', percent: 12, meals: 279, color: 'bg-indigo-600', textColor: 'text-indigo-700' },
   ];
 
   // Sample Food Surplus Donated by Local Palm Beach Restaurants
@@ -2545,37 +2585,512 @@ export default function NgoDashboard({
           )}
 
           {/* ======================================================== */}
-          {/* TAB 6: IMPACT ANALYTICS                                  */}
+          {/* TAB 6: IMPACT ANALYTICS (DUAL INTERACTIVE HISTOGRAMS)    */}
           {/* ======================================================== */}
           {activeTab === 'analytics' && (
-            <div className="bg-white rounded-3xl p-6 border border-stone-200/80 shadow-sm space-y-6">
-              <div className="flex items-center justify-between">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-sm space-y-8 animate-in fade-in duration-200">
+              
+              {/* Report Header */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-stone-100">
                 <div>
-                  <h2 className="text-xl font-black text-stone-900">Hope Foundation Impact Analytics</h2>
-                  <p className="text-xs text-stone-500">Verified audit trail of surplus redistribution & carbon offset in Palm Beach County</p>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+                      Hope Foundation Impact Analytics
+                    </h2>
+                    <span className="bg-[#F59E0B] text-stone-950 font-black text-xs px-2.5 py-0.5 rounded-full shadow-xs">
+                      AUDIT CERTIFIED
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-500 mt-1">
+                    Verified audit trail of surplus redistribution &amp; carbon offset across Vela Foods network
+                  </p>
                 </div>
-                <button className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-full cursor-pointer">
-                  Export PDF Report
-                </button>
+
+                <div className="flex items-center gap-2.5">
+                  <button
+                    onClick={() => {
+                      setClaimSuccessMessage('Official Hope Foundation Impact Audit Report exported as PDF!');
+                      setTimeout(() => setClaimSuccessMessage(null), 4000);
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0A3F2F] hover:bg-stone-900 text-white font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#F59E0B]" />
+                    <span>Export PDF Report</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setClaimSuccessMessage('FSSAI Environmental & Food Redistribution Certificate downloaded.');
+                      setTimeout(() => setClaimSuccessMessage(null), 4000);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Audit Cert</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200">
-                  <span className="text-xs text-emerald-700 font-bold block uppercase">Total Meals Rescued</span>
-                  <span className="text-3xl font-black text-emerald-950 mt-1 block">1,850</span>
-                  <span className="text-[11px] text-emerald-700 mt-2 block">+18% compared to last quarter</span>
+              {/* 3 Top Summary KPI Cards (As seen in User Screenshot) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50/90 to-emerald-100/40 border border-emerald-200/80 shadow-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-emerald-800 font-extrabold uppercase tracking-wider block">
+                      Total Meals Rescued
+                    </span>
+                    <Utensils className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <span className="text-3xl sm:text-4xl font-black text-emerald-950 block">1,850</span>
+                  <span className="text-[11px] text-emerald-700 font-medium block pt-1">
+                    +18% compared to last quarter
+                  </span>
                 </div>
-                <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200">
-                  <span className="text-xs text-amber-700 font-bold block uppercase">Edible Food Recovered</span>
-                  <span className="text-3xl font-black text-amber-950 mt-1 block">520 kg</span>
-                  <span className="text-[11px] text-amber-700 mt-2 block">Zero safe surplus wasted</span>
+
+                <div className="p-6 rounded-2xl bg-gradient-to-br from-amber-50/90 to-amber-100/40 border border-amber-200/80 shadow-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-amber-800 font-extrabold uppercase tracking-wider block">
+                      Edible Food Recovered
+                    </span>
+                    <Box className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <span className="text-3xl sm:text-4xl font-black text-amber-950 block">520 kg</span>
+                  <span className="text-[11px] text-amber-700 font-medium block pt-1">
+                    Zero safe surplus wasted
+                  </span>
                 </div>
-                <div className="p-5 rounded-2xl bg-teal-50 border border-teal-200">
-                  <span className="text-xs text-teal-700 font-bold block uppercase">CO₂ Footprint Avoided</span>
-                  <span className="text-3xl font-black text-teal-950 mt-1 block">720 kg CO₂</span>
-                  <span className="text-[11px] text-teal-700 mt-2 block">Equivalent to 62 planted trees</span>
+
+                <div className="p-6 rounded-2xl bg-gradient-to-br from-teal-50/90 to-teal-100/40 border border-teal-200/80 shadow-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-teal-800 font-extrabold uppercase tracking-wider block">
+                      CO₂ Footprint Avoided
+                    </span>
+                    <Leaf className="w-4 h-4 text-teal-600" />
+                  </div>
+                  <span className="text-3xl sm:text-4xl font-black text-teal-950 block">720 kg CO₂</span>
+                  <span className="text-[11px] text-teal-700 font-medium block pt-1">
+                    Equivalent to 62 planted trees
+                  </span>
                 </div>
               </div>
+
+              {/* ======================================================== */}
+              {/* HISTOGRAM 1: SURPLUS REDISTRIBUTION & MEAL VOLUME        */}
+              {/* ======================================================== */}
+              <div className="bg-stone-50/70 p-5 sm:p-7 rounded-3xl border border-stone-200 space-y-5">
+                
+                {/* Histogram 1 Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-xl bg-[#0A3F2F] text-white flex items-center justify-center">
+                        <BarChart3 className="w-4 h-4" />
+                      </div>
+                      <h3 className="font-extrabold text-stone-900 text-sm sm:text-base">
+                        1. Surplus Food Redistribution &amp; Volume Histogram
+                      </h3>
+                    </div>
+                    <p className="text-xs text-stone-500 font-medium">
+                      Daily and weekly volume of rescued nutritious meals supplied to community shelters
+                    </p>
+                  </div>
+
+                  {/* Metric Switcher Tabs */}
+                  <div className="flex flex-wrap items-center gap-1.5 bg-white border border-stone-200 p-1 rounded-xl text-xs font-bold self-start sm:self-auto">
+                    <button
+                      onClick={() => setAnalyticsMealMetric('meals')}
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        analyticsMealMetric === 'meals'
+                          ? 'bg-[#0A3F2F] text-white shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      Meals Rescued
+                    </button>
+                    <button
+                      onClick={() => setAnalyticsMealMetric('kg')}
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        analyticsMealMetric === 'kg'
+                          ? 'bg-[#0A3F2F] text-white shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      Weight (kg)
+                    </button>
+                    <button
+                      onClick={() => setAnalyticsMealMetric('shelters')}
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        analyticsMealMetric === 'shelters'
+                          ? 'bg-[#0A3F2F] text-white shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      Shelters Supplied
+                    </button>
+                  </div>
+                </div>
+
+                {/* Histogram 1 SVG Canvas */}
+                <div className="relative pt-6 pb-2 bg-white rounded-2xl p-5 border border-stone-200 shadow-2xs">
+                  
+                  {/* Target Benchmark Line */}
+                  <div className="absolute left-10 right-6 top-[38%] border-b border-dashed border-[#F59E0B] z-10 flex items-center justify-end pointer-events-none">
+                    <span className="text-[10px] font-mono font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded -mt-4 border border-amber-300">
+                      Standard Benchmark: {analyticsMealMetric === 'meals' ? '350 Meals/Day' : analyticsMealMetric === 'kg' ? '80 kg/Day' : '6 Shelters/Day'}
+                    </span>
+                  </div>
+
+                  {/* Histogram Grid & Bars */}
+                  <div className="h-60 flex items-end justify-between gap-3 sm:gap-6 pl-10 pr-4 relative">
+                    
+                    {/* Y-Axis Labels */}
+                    <div className="absolute left-2 top-0 bottom-6 flex flex-col justify-between text-[10px] font-mono text-stone-400 font-bold select-none">
+                      <span>{analyticsMealMetric === 'meals' ? '500' : analyticsMealMetric === 'kg' ? '150' : '10'}</span>
+                      <span>{analyticsMealMetric === 'meals' ? '375' : analyticsMealMetric === 'kg' ? '112' : '7'}</span>
+                      <span>{analyticsMealMetric === 'meals' ? '250' : analyticsMealMetric === 'kg' ? '75' : '5'}</span>
+                      <span>{analyticsMealMetric === 'meals' ? '125' : analyticsMealMetric === 'kg' ? '37' : '2'}</span>
+                      <span>0</span>
+                    </div>
+
+                    {/* 7 Interactive Bars */}
+                    {mealDistributionAnalyticsData.map((bar, idx) => {
+                      const val = analyticsMealMetric === 'meals'
+                        ? bar.meals
+                        : analyticsMealMetric === 'kg'
+                        ? (bar.kg / 150) * 500
+                        : (bar.shelters / 10) * 500;
+                      const heightPct = Math.min(100, Math.max(16, (val / 500) * 100));
+                      const isHovered = hoveredAnalyticsMealIndex === idx;
+
+                      return (
+                        <div
+                          key={bar.day}
+                          className="flex-1 flex flex-col items-center h-full justify-end relative group cursor-pointer"
+                          onMouseEnter={() => setHoveredAnalyticsMealIndex(idx)}
+                          onMouseLeave={() => setHoveredAnalyticsMealIndex(null)}
+                        >
+                          {/* Hover Tooltip Popover */}
+                          {isHovered && (
+                            <div className="absolute -top-18 z-30 bg-[#1C1917] text-white p-3 rounded-xl shadow-2xl text-left border border-stone-700 whitespace-nowrap animate-in zoom-in-95 pointer-events-none">
+                              <span className="text-[10px] font-bold text-amber-400 block">{bar.label}</span>
+                              <span className="text-xs font-black text-white block">
+                                {analyticsMealMetric === 'meals'
+                                  ? `${bar.meals} Meals Rescued`
+                                  : analyticsMealMetric === 'kg'
+                                  ? `${bar.kg} kg Food Recovered`
+                                  : `${bar.shelters} Shelters Supplied`}
+                              </span>
+                              <span className="text-[9px] text-stone-300 block">Top Kitchen: {bar.topPartner}</span>
+                              <span className="text-[9px] text-emerald-400 font-semibold block">Category: {bar.topCategory}</span>
+                            </div>
+                          )}
+
+                          {/* Value on Top of Bar */}
+                          <span className={`text-[11px] font-mono font-bold mb-1.5 transition-colors ${
+                            isHovered ? 'text-emerald-700 font-black scale-110' : 'text-stone-500'
+                          }`}>
+                            {analyticsMealMetric === 'meals' ? bar.meals : analyticsMealMetric === 'kg' ? `${bar.kg}kg` : `${bar.shelters} orgs`}
+                          </span>
+
+                          {/* Bar Fill */}
+                          <div className="w-full max-w-[48px] bg-stone-100 rounded-t-xl overflow-hidden h-full flex items-end">
+                            <div
+                              style={{ height: `${heightPct}%` }}
+                              className={`w-full rounded-t-xl transition-all duration-300 ${
+                                isHovered
+                                  ? 'bg-gradient-to-t from-emerald-700 to-[#F59E0B]'
+                                  : 'bg-gradient-to-t from-[#0A3F2F] to-emerald-500'
+                              }`}
+                            />
+                          </div>
+
+                          {/* X-Axis Day Label */}
+                          <span className={`text-xs font-bold mt-2.5 select-none ${
+                            isHovered ? 'text-emerald-800 font-black' : 'text-stone-500'
+                          }`}>
+                            {bar.day}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Histogram 1 Summary KPI Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-center">
+                  <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase block">Weekly Volume</span>
+                    <span className="text-sm sm:text-base font-black text-stone-900 mt-0.5 block">2,315 Meals</span>
+                  </div>
+                  <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase block">Daily Average</span>
+                    <span className="text-sm sm:text-base font-black text-emerald-800 mt-0.5 block">330.7 Meals / Day</span>
+                  </div>
+                  <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase block">Peak Harvest Day</span>
+                    <span className="text-sm sm:text-base font-black text-amber-700 mt-0.5 block">Sunday (480 Meals)</span>
+                  </div>
+                  <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase block">Redistribution Rate</span>
+                    <span className="text-sm sm:text-base font-black text-teal-800 mt-0.5 block">99.2% Zero Waste</span>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* ======================================================== */}
+              {/* HISTOGRAM 2: ENVIRONMENTAL IMPACT & CARBON ABATEMENT     */}
+              {/* ======================================================== */}
+              <div className="bg-stone-50/70 p-5 sm:p-7 rounded-3xl border border-stone-200 space-y-5">
+                
+                {/* Histogram 2 Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-xl bg-teal-600 text-white flex items-center justify-center">
+                        <Leaf className="w-4 h-4" />
+                      </div>
+                      <h3 className="font-extrabold text-stone-900 text-sm sm:text-base">
+                        2. Environmental Carbon Abatement &amp; Landfill Diversion Histogram
+                      </h3>
+                    </div>
+                    <p className="text-xs text-stone-500 font-medium">
+                      Greenhouse gas emissions prevented, methane avoided, and water footprint conserved
+                    </p>
+                  </div>
+
+                  {/* Metric Switcher Tabs */}
+                  <div className="flex flex-wrap items-center gap-1.5 bg-white border border-stone-200 p-1 rounded-xl text-xs font-bold self-start sm:self-auto">
+                    <button
+                      onClick={() => setAnalyticsEcoMetric('co2')}
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        analyticsEcoMetric === 'co2'
+                          ? 'bg-[#0A3F2F] text-white shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      CO₂ Offset (kg)
+                    </button>
+                    <button
+                      onClick={() => setAnalyticsEcoMetric('methane')}
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        analyticsEcoMetric === 'methane'
+                          ? 'bg-[#0A3F2F] text-white shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      Methane Avoided (kg)
+                    </button>
+                    <button
+                      onClick={() => setAnalyticsEcoMetric('water')}
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        analyticsEcoMetric === 'water'
+                          ? 'bg-[#0A3F2F] text-white shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      Water Conserved (L)
+                    </button>
+                    <button
+                      onClick={() => setAnalyticsEcoMetric('trees')}
+                      className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        analyticsEcoMetric === 'trees'
+                          ? 'bg-[#0A3F2F] text-white shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      Trees Planted Equiv.
+                    </button>
+                  </div>
+                </div>
+
+                {/* Histogram 2 SVG Canvas */}
+                <div className="relative pt-6 pb-2 bg-white rounded-2xl p-5 border border-stone-200 shadow-2xs">
+                  
+                  {/* Target Benchmark Line */}
+                  <div className="absolute left-10 right-6 top-[38%] border-b border-dashed border-teal-500 z-10 flex items-center justify-end pointer-events-none">
+                    <span className="text-[10px] font-mono font-black text-teal-900 bg-teal-100 px-2 py-0.5 rounded -mt-4 border border-teal-300">
+                      Standard Benchmark: {analyticsEcoMetric === 'co2' ? '120 kg CO₂ Offset/Day' : analyticsEcoMetric === 'methane' ? '30 kg Methane/Day' : analyticsEcoMetric === 'water' ? '2,500 L Water/Day' : '10 Trees/Day'}
+                    </span>
+                  </div>
+
+                  {/* Histogram Grid & Bars */}
+                  <div className="h-60 flex items-end justify-between gap-3 sm:gap-6 pl-10 pr-4 relative">
+                    
+                    {/* Y-Axis Labels */}
+                    <div className="absolute left-2 top-0 bottom-6 flex flex-col justify-between text-[10px] font-mono text-stone-400 font-bold select-none">
+                      <span>{analyticsEcoMetric === 'co2' ? '200' : analyticsEcoMetric === 'methane' ? '60' : analyticsEcoMetric === 'water' ? '4,000' : '20'}</span>
+                      <span>{analyticsEcoMetric === 'co2' ? '150' : analyticsEcoMetric === 'methane' ? '45' : analyticsEcoMetric === 'water' ? '3,000' : '15'}</span>
+                      <span>{analyticsEcoMetric === 'co2' ? '100' : analyticsEcoMetric === 'methane' ? '30' : analyticsEcoMetric === 'water' ? '2,000' : '10'}</span>
+                      <span>{analyticsEcoMetric === 'co2' ? '50' : analyticsEcoMetric === 'methane' ? '15' : analyticsEcoMetric === 'water' ? '1,000' : '5'}</span>
+                      <span>0</span>
+                    </div>
+
+                    {/* 7 Interactive Bars */}
+                    {environmentalImpactData.map((bar, idx) => {
+                      const val = analyticsEcoMetric === 'co2'
+                        ? bar.co2
+                        : analyticsEcoMetric === 'methane'
+                        ? (bar.methane / 60) * 200
+                        : analyticsEcoMetric === 'water'
+                        ? (bar.water / 4000) * 200
+                        : (bar.trees / 20) * 200;
+                      const heightPct = Math.min(100, Math.max(16, (val / 200) * 100));
+                      const isHovered = hoveredAnalyticsEcoIndex === idx;
+
+                      return (
+                        <div
+                          key={bar.day}
+                          className="flex-1 flex flex-col items-center h-full justify-end relative group cursor-pointer"
+                          onMouseEnter={() => setHoveredAnalyticsEcoIndex(idx)}
+                          onMouseLeave={() => setHoveredAnalyticsEcoIndex(null)}
+                        >
+                          {/* Hover Tooltip Popover */}
+                          {isHovered && (
+                            <div className="absolute -top-18 z-30 bg-[#1C1917] text-white p-3 rounded-xl shadow-2xl text-left border border-stone-700 whitespace-nowrap animate-in zoom-in-95 pointer-events-none">
+                              <span className="text-[10px] font-bold text-emerald-400 block">{bar.label}</span>
+                              <span className="text-xs font-black text-white block">
+                                {analyticsEcoMetric === 'co2'
+                                  ? `${bar.co2} kg CO₂e Offset`
+                                  : analyticsEcoMetric === 'methane'
+                                  ? `${bar.methane} kg Methane Avoided`
+                                  : analyticsEcoMetric === 'water'
+                                  ? `${bar.water} Liters Water Conserved`
+                                  : `${bar.trees} Trees Equivalent`}
+                              </span>
+                              <span className="text-[9px] text-stone-300 block">Landfill Diversion: 100% Certified</span>
+                              <span className="text-[9px] text-teal-400 font-semibold block">Audit Status: {bar.auditGrade}</span>
+                            </div>
+                          )}
+
+                          {/* Value on Top of Bar */}
+                          <span className={`text-[11px] font-mono font-bold mb-1.5 transition-colors ${
+                            isHovered ? 'text-teal-700 font-black scale-110' : 'text-stone-500'
+                          }`}>
+                            {analyticsEcoMetric === 'co2' ? `${bar.co2}kg` : analyticsEcoMetric === 'methane' ? `${bar.methane}kg` : analyticsEcoMetric === 'water' ? `${bar.water}L` : `${bar.trees} trees`}
+                          </span>
+
+                          {/* Bar Fill */}
+                          <div className="w-full max-w-[48px] bg-stone-100 rounded-t-xl overflow-hidden h-full flex items-end">
+                            <div
+                              style={{ height: `${heightPct}%` }}
+                              className={`w-full rounded-t-xl transition-all duration-300 ${
+                                isHovered
+                                  ? 'bg-gradient-to-t from-teal-700 to-[#F59E0B]'
+                                  : 'bg-gradient-to-t from-[#072F23] via-teal-700 to-emerald-400'
+                              }`}
+                            />
+                          </div>
+
+                          {/* X-Axis Day Label */}
+                          <span className={`text-xs font-bold mt-2.5 select-none ${
+                            isHovered ? 'text-teal-800 font-black' : 'text-stone-500'
+                          }`}>
+                            {bar.day}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Histogram 2 Summary KPI Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-center">
+                  <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase block">Total CO₂ Offset</span>
+                    <span className="text-sm sm:text-base font-black text-emerald-800 mt-0.5 block">720 kg CO₂</span>
+                  </div>
+                  <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase block">Landfill Diversion</span>
+                    <span className="text-sm sm:text-base font-black text-stone-900 mt-0.5 block">100% Zero-Landfill</span>
+                  </div>
+                  <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase block">Methane Prevented</span>
+                    <span className="text-sm sm:text-base font-black text-teal-800 mt-0.5 block">185 kg CH₄</span>
+                  </div>
+                  <div className="bg-white p-3.5 rounded-xl border border-stone-200">
+                    <span className="text-[10px] font-bold text-stone-400 uppercase block">Water Conserved</span>
+                    <span className="text-sm sm:text-base font-black text-[#F59E0B] mt-0.5 block">17,900 Liters</span>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* ======================================================== */}
+              {/* SECTION 3: FOOD CATEGORY SHARE & UN SDG ALIGNMENT        */}
+              {/* ======================================================== */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                {/* Left (Col 1-7): Food Category Distribution */}
+                <div className="lg:col-span-7 bg-stone-50 p-6 rounded-3xl border border-stone-200 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-extrabold text-sm sm:text-base text-stone-900">
+                        Surplus Food Category Share Breakdown
+                      </h4>
+                      <p className="text-[11px] text-stone-500">Distribution percentages across rescued food types</p>
+                    </div>
+                    <span className="text-xs font-bold text-emerald-800 bg-emerald-100/70 px-2.5 py-0.5 rounded-full">
+                      100% Quality Checked
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 pt-1">
+                    {categoryBreakdownData.map((cat, idx) => (
+                      <div key={idx} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-stone-800">{cat.name}</span>
+                          <span className="font-mono font-bold text-stone-600">
+                            {cat.percent}% ({cat.meals} meals)
+                          </span>
+                        </div>
+                        <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${cat.color}`}
+                            style={{ width: `${cat.percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right (Col 8-12): UN Sustainable Development Goals (SDG) Alignment */}
+                <div className="lg:col-span-5 bg-[#0A3F2F] text-white p-6 rounded-3xl border border-emerald-900 shadow-md flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Award className="w-5 h-5 text-[#F59E0B]" />
+                      <h4 className="font-black text-sm uppercase tracking-wider text-emerald-300">
+                        UN SDG Compliance Alignment
+                      </h4>
+                    </div>
+                    <p className="text-xs text-emerald-100/80 leading-relaxed">
+                      Hope Foundation operations align with United Nations Sustainable Development Goals for food rescue.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 text-xs">
+                    <div className="bg-white/10 p-2.5 rounded-xl border border-white/10 flex items-center justify-between">
+                      <span className="font-bold">SDG 2: Zero Hunger</span>
+                      <span className="bg-emerald-400 text-stone-950 font-black text-[10px] px-2 py-0.5 rounded">
+                        TARGET MET
+                      </span>
+                    </div>
+                    <div className="bg-white/10 p-2.5 rounded-xl border border-white/10 flex items-center justify-between">
+                      <span className="font-bold">SDG 12: Responsible Consumption</span>
+                      <span className="bg-amber-400 text-stone-950 font-black text-[10px] px-2 py-0.5 rounded">
+                        -50% WASTE
+                      </span>
+                    </div>
+                    <div className="bg-white/10 p-2.5 rounded-xl border border-white/10 flex items-center justify-between">
+                      <span className="font-bold">SDG 13: Climate Action</span>
+                      <span className="bg-emerald-400 text-stone-950 font-black text-[10px] px-2 py-0.5 rounded">
+                        720 kg OFFSET
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           )}
 
