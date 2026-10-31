@@ -1,0 +1,371 @@
+Executive summary
+* Indian households generated an estimated 78.2 million tonnes of food waste in 2022—approximately 7.82 crore tonnes, or 55 kg per person per year—according to UNEP’s Food Waste Index Report 2024. India’s estimate has medium confidence, rather than being a complete national measurement.wedocs.unep
+* That figure includes edible food and associated inedible material, such as peels and bones. It is not a measurement of 78.2 million tonnes of donation-ready meals thrown into dustbins.wedocs.unep
+* Restaurants, caterers, hostels, and canteens are important intervention points, but the sources reviewed do not establish a sufficiently robust, separate national tonnage for Indian restaurant food waste. Do not apply global restaurant-sector percentages to India and present the result as measured Indian data. UNEP itself identifies major limitations in food-service measurement.wedocs.unep
+* A defensible “number-one state for edible food waste” cannot be identified from the evidence reviewed. For municipal solid waste—not food waste specifically—Maharashtra reported the largest generation and treatment volumes in the government’s 2023–24 state dataset: approximately 24,299 and 19,877 tonnes per day, respectively.sansad
+* Your platform should redistribute safe, unused food that has not been served to customers, rather than plate leftovers. This distinction follows the definition in FSSAI’s surplus-food regulations.fssai
+* For five hours, build one complete workflow: donor posts → eligible NGO claims → volunteer collects → NGO confirms receipt/distribution → dashboard updates. Treat forecasting, advanced routing, and household cooked-food sharing as later phases.
+
+Report 1: Food waste in India—scale, sources, destinations, and state comparisons
+1. What exactly are we measuring?
+Your problem statement combines several related but different issues.
+
+Category	Meaning	Relevance to your platform
+Harvest and post-harvest food loss	Loss during agricultural and supply-chain operations before final consumption	Important background; not the initial product focus
+Household food waste	Food and associated inedible parts discarded by households	Major national problem; prevention is a useful future module
+Food-service waste	Waste from restaurants, catering, institutional kitchens, and similar services	Your primary operating environment
+Safe surplus food	Safe unused food that has not been served to customers	The portion your donation workflow should target
+Municipal solid waste	A broader waste stream containing food waste and many non-food materials	Useful for waste-management comparisons, not food-waste rankings
+UNEP’s food-waste definition includes edible and inedible fractions and multiple destinations, while FSSAI defines surplus food more narrowly for redistribution. These categories must remain separate in your report and pitch.fssai+1
+Why this matters
+“Food not eaten” does not necessarily mean “food that can now be donated.”
+For your product, separate:
+1. Safe, unserved surplus: potentially eligible for redistribution after checks.
+2. Previously served food: excluded from your donation workflow.
+3. Spoiled or otherwise unsafe food: excluded.
+4. Inedible preparation material: not a hunger-relief resource.
+The exclusion of previously served food follows FSSAI’s definition of surplus food; the regulations also prohibit unsafe-food distribution.fssai
+2. Verified national statistics
+
+Indicator	Figure	Reference period and interpretation
+Indian household food waste	78,192,338 tonnes/year, rounded to 78.2 million	UNEP estimate normalised to 2022; medium confidence
+Indian household food waste per person	55 kg/year	Per person, not per household
+Global household average	79 kg/person/year	Comparison benchmark
+Global household food waste	631 million tonnes/year	Global, not India
+Global food-service waste	290 million tonnes/year	Global, not India
+Global retail food waste	131 million tonnes/year	Global, not India
+Global combined total	Approximately 1.05 billion tonnes/year	Household, food service, and retail combined
+The India figures and confidence classification come from UNEP’s appendix; the global sector totals come from UNEP’s statistical presentation. India’s government also confirmed the 55 kg/person/year estimate in a March 2025 parliamentary reply.wedocs.unep+2
+What you can say about edible food thrown away
+A careful statement is:
+“UNEP estimates that Indian households generated approximately 78.2 million tonnes of food waste in 2022. This includes both edible and inedible material. Our project targets the smaller, operationally recoverable category of safe, unserved surplus from institutional kitchens and food businesses.”
+
+
+Do not claim that the entire national household estimate could be recovered through food donation. UNEP’s methodology explicitly includes inedible fractions.wedocs.unep
+3. How much do Indian restaurants waste?
+The evidence reviewed does not support one reliable, comprehensive national restaurant-waste tonnage.
+UNEP explains why food-service figures are difficult to establish:
+* Studies often cover only one establishment type.
+* A university-canteen study cannot automatically represent restaurants, hospitals, hotels, and event caterers.
+* National estimates require broader coverage and defensible scaling.
+* Some business data rely on self-reporting rather than independently verified weighing.wedocs.unep
+What to put in your presentation
+Use this wording:
+“India has a substantial food-service measurement gap. Our platform does not only coordinate redistribution; it produces establishment-level records of surplus offered, collected, distributed, and rejected.”
+
+
+That is a proposed product contribution—not a claim that your hackathon prototype has already measured India’s food waste.
+Measure these four streams separately
+
+Stream	Example	Platform handling
+Preparation waste	Vegetable trimmings	Waste audit; not automatically donation eligible
+Unserved surplus	Food remaining in controlled kitchen storage	Candidate for safety-screened donation
+Served leftovers	Food returned on customer plates	Block donation listing
+Spoilage	Deteriorated stock	Block donation; record appropriate disposal
+This classification helps keep donation eligibility consistent with FSSAI’s safe, unserved-surplus definition.fssai
+4. Household food waste: what your project should and should not address
+The household sector is large, but a five-hour prototype should not attempt unrestricted cooked-food collection from individual homes.
+For your MVP, I recommend:
+* Focus operationally on restaurants, campus mess halls, and caterers.
+* Keep a household education section as optional.
+* Consider unopened packaged-food donations in a later, separately governed workflow.
+* Do not imply that institutional donor verification automatically makes household food sharing safe.
+A useful later household module could record purchase, storage, and discard reasons. However, label these as self-reported observations, not equivalent to directly weighed waste audits. UNEP excludes household recall-based surveys from its estimation approach because of measurement limitations.wedocs.unep
+5. Which Indian state wastes the most food?
+There are three different questions here.
+
+Question	Defensible answer
+Which state discards the most edible food?	Not established by the evidence reviewed
+Which state generates the most municipal solid waste in the cited dataset?	Maharashtra
+Which state treats the largest absolute volume of municipal solid waste in that dataset?	Maharashtra
+The municipal-waste answers refer to the government’s 2023–24 dataset, published in a parliamentary reply on 1 December 2025. They are not a state ranking of food waste or food-donation performance.sansad
+Largest reported municipal solid-waste generators
+
+Rank by generation	State	Generated, tonnes/day	Treated, tonnes/day
+1	Maharashtra	24,299.43	19,877.12
+2	Uttar Pradesh	20,114.00	12,675.00
+3	Tamil Nadu	17,843.455	9,213.436
+4	West Bengal	14,072.04	3,300.00
+5	Karnataka	12,140.00	7,694.00
+6	Gujarat	12,000.00	7,571.832
+7	Telangana	11,714.00	9,440.00
+All values are reported municipal solid-waste figures, not food-only quantities.sansad
+Rajasthan context for your Jaipur pilot
+Rajasthan reported:
+* Generation: approximately 7,909 tonnes/day.
+* Collection: approximately 7,747 tonnes/day.
+* Treatment: approximately 1,748 tonnes/day.sansad
+These figures establish a broader waste-management context. They do not show how much edible food Jaipur restaurants discard, nor how much your platform could recover.
+For your project, choose Jaipur because you can demonstrate a local operating network—not because the evidence proves Jaipur is India’s largest food-waste hotspot.
+“Most waste management” needs a metric
+Largest treatment volume is not the same as best performance.
+A proper comparison could examine:
+* Absolute treatment volume.
+* Treatment as a share of generated waste.
+* Collection coverage.
+* Segregation quality.
+* Compliance and environmental outcomes.
+The cited government table primarily supports generation, collection, and treatment-volume comparisons. It is insufficient on its own to identify the “best-managed state.”sansad
+6. Where does the waste go?
+UNEP’s food-waste accounting includes destinations such as:
+* Landfill.
+* Sewer.
+* Litter, discards, or refuse.
+* Controlled combustion.
+* Composting.
+* Anaerobic digestion.
+* Land application.sdgs.unep
+Consequently, food-waste estimates are not identical to “food dumped in landfill.”
+India’s reported municipal-waste destination context
+For 2023–24, the cited parliamentary response reports:
+
+Indicator	Tonnes/day
+Generated	185,195
+Collected	179,479
+Processed/treated	114,110
+Landfilled	39,629
+These are broader municipal-waste figures. Do not describe all unprocessed waste as landfill waste, or assume that all food waste follows these same proportions. The response does not provide a complete food-specific destination balance.sansad
+How your platform should classify outcomes
+Use separate outcome categories:
+1. Redistributed for human consumption.
+2. Collected but subsequently rejected.
+3. Expired before collection.
+4. Sent to an appropriate organic-waste route.
+5. Other documented disposal.
+Do not count composting as meals rescued. Food donation for human consumption is excluded from UNEP’s food-waste total, whereas composting remains a food-waste destination in its accounting framework.wedocs.unep
+7. Wheat and other crop losses
+Your phrase “number of wheat” may refer to wheat losses, so that deserves a separate entry.
+A Ministry of Food Processing Industries–commissioned NABCONS study, published in 2022, estimated wheat harvest and post-harvest losses at 4.17%:
+
+Wheat-loss component	Estimated loss
+Farm operations	3.61%
+Market level	0.56%
+Combined	4.17%
+These figures describe agricultural and market-stage losses—not the amount of wheat or roti discarded by restaurants or households.pib.gov+1
+Other reported loss ranges include:
+
+Commodity category	Estimated harvest/post-harvest loss
+Cereals	3.89–5.92%
+Pulses	5.65–6.74%
+Oilseeds	2.87–7.51%
+Fruits	6.02–15.05%
+Vegetables	4.87–11.61%
+These are category ranges across commodities, not one common percentage applicable to every crop.pib
+8. Research gaps your project can help address
+Position these as proposed measurement outputs:
+
+Gap	Data your platform could collect
+Unclear surplus volume	Weighed quantity offered by each establishment
+Uncertain recoverability	Quantity passing the donation screening process
+Pickup failures	Expired, cancelled, and missed collections
+Weak delivery evidence	Recipient acknowledgment and timestamp
+Uncertain final use	Distributed quantity and remaining/rejected quantity
+Repeated overproduction	Surplus by food item, day, and service period
+The meaningful research contribution is a transparent local dataset with clear boundaries—not an unsupported national extrapolation.
+
+
+
+Solution: An Integrated Food-Surplus Prevention and Sharing Platform
+The solution is to prevent unnecessary food preparation and connect safe, unserved surplus with nearby NGOs through a coordinated collection and distribution network. Its central principle is traceability: every donation should have a clear record of its source, handling requirements, collection, receipt, and final distribution.
+The platform should address the complete journey—not simply display available food.
+1. Prevent surplus before it is generated
+Donation should operate alongside better purchasing, preparation, and portion planning.
+Restaurants, caterers, and campus kitchens can record:
+* Meals prepared and meals served.
+* Surplus remaining after each service.
+* Food discarded during preparation.
+* Food returned on plates.
+* Ingredients that expire before use.
+* Reasons for surplus, such as cancelled bookings or lower attendance.
+The platform can turn these records into establishment-level recommendations:
+* Prepare food in smaller batches.
+* Adjust production using attendance and booking information.
+* Offer smaller portions with optional additional servings.
+* Identify menu items repeatedly left uneaten.
+* Improve inventory rotation and purchasing quantities.
+* Establish regular surplus collection windows.
+Initially, these recommendations should use transparent rules and historical patterns rather than unsupported predictions.
+2. Separate donation-ready food from other waste
+Not all discarded food can be redistributed. The platform should classify material before offering it for donation.
+
+Food category	Proposed handling
+Safe, unserved prepared food	Screen for redistribution
+Unopened packaged food within its valid consumption period	Screen for redistribution
+Food previously served to customers	Exclude from donation
+Spoiled, contaminated, or otherwise unsafe food	Reject from donation
+Inedible preparation material	Direct to an appropriate waste-management route
+FSSAI’s surplus-food regulations define surplus as safe, unused food that has not been served to customers and prohibit the distribution of unsafe food.fssai.gov
+This separation prevents the platform from treating every kilogram of kitchen waste as a potential meal.
+3. Establish a verified local network
+Bring together four participant groups:
+* Donors: restaurants, caterers, hostels, campus mess halls, and other institutional kitchens.
+* Receiving organisations: NGOs and food-distribution organisations.
+* Collection partners: volunteers or designated transport teams.
+* Coordinators: people responsible for onboarding, reviewing exceptions, and resolving failed collections.
+Each organisation’s profile should include:
+* Responsible contact person.
+* Operating location and hours.
+* Relevant registration or licensing information.
+* Food categories handled.
+* Collection and distribution capacity.
+* Available storage and transport capabilities.
+* Training status of relevant handlers.
+FSSAI’s framework includes registration/licensing requirements, safe handling and transport, trained personnel, and record maintenance. Platform approval should document these checks rather than imply that account creation establishes compliance.fssai.gov
+4. Make food listings complete and actionable
+A donor should be able to create a listing quickly while supplying the information needed for a collection decision.
+Required listing information
+* Food name and description.
+* Quantity available, preferably measured in kilograms.
+* Vegetarian or non-vegetarian classification.
+* Preparation date and time.
+* Declared last consumption date and time.
+* Confirmation that the food has not been served.
+* Storage and holding information.
+* Temperature reading and measurement time, where applicable.
+* Packaging details.
+* Pickup window and location.
+* Known ingredient or allergen information, with unknown information clearly identified.
+* Contact person.
+FSSAI requires prepared-food labelling information including the food name, source, preparation date, last consumption date, and vegetarian/non-vegetarian classification. Its record requirements also include quantity and temperature information.fssai.gov
+A photograph can help identify a listing, but it must not be treated as proof of safety.
+5. Match food with the right recipient—not merely the nearest one
+The platform should first establish eligibility, then rank suitable recipients.
+Eligibility checks
+A receiving organisation should be considered only when:
+* It accepts the food category.
+* It has enough capacity for the quantity.
+* It can meet the handling requirements.
+* Collection and distribution can finish before the declared deadline.
+* The required donor and recipient checks are complete.
+Matching priorities
+Among eligible organisations, prioritise:
+1. Feasible collection and distribution time.
+2. Appropriate transport and storage.
+3. Capacity to use the available quantity.
+4. Proximity.
+5. Demonstrated collection reliability.
+Distance alone should never override a handling limitation or an infeasible deadline. The operating workflow must support distribution within shelf life and suitable handling conditions.fssai.gov
+For recurring donors, scheduled collection arrangements can complement on-demand matching.
+6. Coordinate collection and prevent duplicate claims
+Once a receiving organisation accepts a donation, the platform should reserve it and notify the relevant participants.
+The collection workflow should include:
+1. NGO accepts the listing.
+2. A volunteer or collection team is assigned.
+3. Donor receives the expected arrival time.
+4. Collector records the actual quantity and required handling observations.
+5. Donor and collector confirm handover using a one-time code.
+6. The receiving organisation acknowledges delivery.
+Only one active claim should be allowed for the same allocation. If a collection is cancelled, the food should return to availability only after its remaining deadline and handling conditions are reviewed.
+For missed pickups:
+* Notify the coordinator.
+* Contact an eligible backup recipient.
+* Reassess whether redistribution remains feasible.
+* Record expiry or rejection when it does not.
+The platform should never silently extend a food’s consumption deadline to accommodate a delay.
+7. Build safety into every handover
+Food safety should be an operating process supported by software—not a badge generated by an algorithm.
+At listing
+Check required information, donor declarations, and handling requirements.
+At pickup
+Record quantity, packaging condition, relevant temperature information, and any reason for rejection.
+At receipt
+Record delivery time, quantity received, handling observations, and any discrepancy.
+Before distribution
+The receiving organisation follows its approved food-handling procedures and records the quantity distributed or rejected.
+FSSAI requires safe handling, suitable storage and transport, and distribution within shelf life. A countdown, photograph, or donor declaration does not replace those obligations.fssai.gov
+The platform should also maintain an incident workflow that allows coordinators to:
+* Pause a listing or donor account.
+* Notify affected participants.
+* Preserve relevant records.
+* Document investigation and corrective action.
+8. Record what actually happened to the food
+Use separate stages:
+text
+
+
+Listed → Accepted → Collected → Received → Distribution confirmed
+Maintain exception outcomes:
+text
+
+
+Cancelled | Expired | Rejected | Partially distributed
+Record quantities at each stage rather than carrying the original listing quantity through automatically.
+For example:
+* Offered: 20 kg.
+* Collected: 18 kg.
+* Received: 18 kg.
+* Distributed: 17 kg.
+* Rejected or remaining: 1 kg.
+The distribution dashboard should count 17 kg, not 20 kg.
+Recipient acknowledgment demonstrates reported distribution, not proof that every portion was consumed. The platform should make that distinction clear.
+9. Measure outcomes without overstating impact
+The dashboard should display:
+
+Metric	What it measures
+Surplus offered	Quantity donors made available
+Food collected	Quantity physically handed over
+Food received	Quantity acknowledged by recipients
+Distribution confirmed	Quantity recipients report distributing
+Rejected or remaining food	Quantity not distributed
+Missed collections	Accepted donations not collected
+Time to claim	Delay between listing and acceptance
+Time to receipt	Duration until recipient acknowledgment
+Recurring surplus	Repeated excess by item, donor, and service period
+If meal equivalents are shown, disclose the assumed food weight per meal. Do not describe estimated meal equivalents as verified people fed.
+Keep human redistribution separate from composting or other disposal outcomes. UNEP excludes donation for human consumption from its food-waste total, while composting remains a food-waste destination in its accounting framework.wedocs.unep
+10. Provide an appropriate route for non-donatable material
+Food sharing should connect to a wider waste-management system.
+The platform can record referrals for:
+* Appropriate organic-waste processing.
+* Composting.
+* Anaerobic digestion.
+* Other authorised disposal arrangements.
+Available routes should be verified locally rather than assumed.
+Record why the material could not be donated:
+* Previously served.
+* Spoiled.
+* Missing handling information.
+* Deadline exceeded.
+* No suitable recipient.
+* Collection failure.
+* Inedible material.
+These reasons are valuable because they reveal whether improvement requires better planning, earlier listing, more collection capacity, or improved handling.
+11. Address household waste through a separate prevention pathway
+Households should not automatically enter the same cooked-food collection workflow as institutional kitchens.
+A household-focused section can instead provide:
+* Purchase and inventory lists.
+* Reminders based on user-entered dates.
+* Meal-planning tools.
+* Portion-planning prompts.
+* Self-reported discard logs.
+* Information about locally approved donation options.
+Any household donation service should have its own eligibility, packaging, handling, and verification procedures.
+Household discard logs should be labelled self-reported. They should not be presented as equivalent to weighed waste audits; UNEP identifies limitations in recall-based household measurement.wedocs.unep
+12. Create a feedback loop that reduces dependence on donation
+The strongest long-term outcome is not an endlessly increasing quantity of surplus.
+Provide donors with periodic reports showing:
+* Which foods repeatedly remain unserved.
+* Which service periods produce excess.
+* How much surplus was successfully redistributed.
+* How much expired before collection.
+* Which planning changes reduced avoidable surplus.
+Recognise participants for both successful redistribution and reduced avoidable waste. Avoid incentives based only on the number of listings or kilograms offered, which could reward overproduction.
+13. Introduce the service in manageable local clusters
+Start with a small, dependable network:
+* A few regular institutional donors.
+* A suitable receiving organisation.
+* A trained collection team.
+* Agreed collection windows.
+* Documented safety, rejection, and incident procedures.
+Expand only after the network can consistently complete collections, maintain records, and resolve exceptions.
+FSSAI’s existing Save Food Share Food initiative and Indian Food Sharing Alliance provide an established ecosystem to consider when developing partnerships. The proposed platform should strengthen coordination within that ecosystem rather than duplicate it without checking local services.southregion.fssai.gov
+14. Protect privacy and sustain operations
+Privacy controls
+* Display approximate locations before acceptance.
+* Share exact pickup details only with authorised participants.
+* Restrict access to contact information.
+* Keep an audit trail of important changes.
+* Avoid collecting unnecessary personal information about beneficiaries.
+* Use organisation-level acknowledgments where individual identification is unnecessary.
+Operating support
+Potential funding sources include institutional service fees, CSR support, grants, and sponsored collection logistics. Track transport, packaging, training, and coordination costs separately from food-distribution outcomes.
