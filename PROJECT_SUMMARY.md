@@ -121,3 +121,4 @@ Many apps make exaggerated claims like *"We saved 10,000 people from hunger"* wh
 
 - **Privacy:** Public visitors only see approximate areas (e.g. "C-Scheme, Jaipur"). Exact kitchen addresses and contact numbers are only shared with the assigned volunteer and verified recipient NGO.
 - **Long-Term Goal:** The best platform doesn't just pass surplus around forever—it helps kitchens notice which dishes are overcooked so they can **reduce excess food before it is even made**.
+
