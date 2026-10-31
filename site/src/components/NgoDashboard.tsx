@@ -128,6 +128,19 @@ export default function NgoDashboard({
   const [rejectReasonText, setRejectReasonText] = useState('');
   const [isRejecting, setIsRejecting] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [dashboardBottomTab, setDashboardBottomTab] = useState<'tracking' | 'requests'>('tracking');
+  const [histogramMetric, setHistogramMetric] = useState<'meals' | 'kg' | 'co2'>('meals');
+  const [hoveredHistogramIndex, setHoveredHistogramIndex] = useState<number | null>(null);
+
+  const impactHistogramData = [
+    { day: 'Mon', label: 'Monday', meals: 240, kg: 68, co2: 95, topCat: 'Curry & Rice', percent: 60 },
+    { day: 'Tue', label: 'Tuesday', meals: 310, kg: 88, co2: 122, topCat: 'Vegetables Box', percent: 78 },
+    { day: 'Wed', label: 'Wednesday', meals: 195, kg: 55, co2: 76, topCat: 'Bakery Breads', percent: 49 },
+    { day: 'Thu', label: 'Thursday', meals: 420, kg: 118, co2: 164, topCat: 'Cooked Meals', percent: 92 },
+    { day: 'Fri', label: 'Friday', meals: 380, kg: 105, co2: 148, topCat: 'Curry & Roti', percent: 85 },
+    { day: 'Sat', label: 'Saturday', meals: 290, kg: 82, co2: 114, topCat: 'Fresh Fruits', percent: 72 },
+    { day: 'Sun', label: 'Sunday (Today)', meals: 480, kg: 135, co2: 188, topCat: 'Banquet Surplus', percent: 100 },
+  ];
 
   // Sample Food Surplus Donated by Local Palm Beach Restaurants
   const [availableFood, setAvailableFood] = useState<FoodItem[]>([
@@ -1034,51 +1047,62 @@ export default function NgoDashboard({
                     {filteredFood.slice(0, 3).map((item) => (
                       <div
                         key={item.id}
-                        className="p-3.5 rounded-2xl border border-stone-200/70 hover:border-emerald-500/50 hover:bg-emerald-50/20 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                        onClick={() => setSelectedItemForClaim(item)}
+                        className="p-3.5 rounded-2xl border border-stone-200/70 hover:border-emerald-500/50 hover:bg-emerald-50/20 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group cursor-pointer hover:shadow-xs"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
                           <img
                             src={item.image}
                             alt={item.title}
-                            className="w-14 h-14 rounded-2xl object-cover flex-shrink-0 shadow-sm border border-stone-100"
+                            className="w-14 h-14 rounded-2xl object-cover flex-shrink-0 shadow-sm border border-stone-100 group-hover:scale-105 transition-transform"
                           />
-                          <div>
+                          <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <h4 className="font-extrabold text-xs text-stone-900 group-hover:text-emerald-900 transition-colors">
+                              <h4 className="font-extrabold text-xs text-stone-900 group-hover:text-emerald-900 transition-colors truncate">
                                 {item.title}
                               </h4>
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 fill-emerald-100" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 fill-emerald-100 shrink-0" />
                             </div>
-                            <p className="text-[11px] text-stone-500 font-medium">
+                            <p className="text-[11px] text-stone-500 font-medium truncate">
                               {item.restaurant} • <span className="font-semibold text-stone-700">{item.distance}</span>
                             </p>
-                            <div className="flex items-center gap-2 mt-1 text-[10px] text-stone-500 font-semibold">
-                              <span className="bg-stone-100 px-2 py-0.5 rounded-md text-stone-800">{item.quantity}</span>
-                              <span className="flex items-center gap-1 text-emerald-700">
-                                <Clock className="w-2.5 h-2.5" />
-                                {item.pickupTime}
+                            
+                            {/* Detailed "Kya hai" & "Kitna chal rahi hai" Badges */}
+                            <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[10px]">
+                              <span className="bg-stone-100 px-2 py-0.5 rounded-md text-stone-800 font-bold">
+                                {item.quantity} • {item.servings}
                               </span>
-                              <span className="text-stone-400">{item.date}</span>
+                              <span className="inline-flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                {item.activeDuration}
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-amber-800 font-bold bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                                <Timer className="w-2.5 h-2.5 text-amber-600" />
+                                Exp: {item.expiryHoursLeft}h left
+                              </span>
                             </div>
                           </div>
                         </div>
 
-                        {/* Status & Claim Button */}
-                        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2">
+                        {/* Status & Claim / Details Button */}
+                        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 shrink-0">
                           <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                               item.status === 'Expiring Soon'
                                 ? 'bg-amber-100 text-amber-800 border-amber-300'
                                 : 'bg-emerald-100 text-emerald-800 border-emerald-200'
                             }`}
                           >
-                            {item.status}
+                            ● {item.status}
                           </span>
                           <button
-                            onClick={() => setSelectedItemForClaim(item)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedItemForClaim(item);
+                            }}
                             className="px-3.5 py-1.5 rounded-xl bg-[#0A3F2F] hover:bg-stone-900 text-white text-[11px] font-bold flex items-center gap-1.5 shadow-sm hover:scale-105 transition-all cursor-pointer"
                           >
-                            <span>Claim Food</span>
+                            <span>Details &amp; Claim</span>
                             <ArrowRight className="w-3 h-3 text-[#F59E0B]" />
                           </button>
                         </div>
@@ -1324,127 +1348,492 @@ export default function NgoDashboard({
 
               </div>
 
-              {/* Bottom Row: My Food Requests (Left) & Our Impact Together (Right) */}
+              {/* Bottom Row: Ola/Uber Live Active Tracking (Col 1-7) & Professional Impact Histogram (Col 8-12) */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                {/* My Food Requests Table (Col 1-7) */}
-                <div className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/80 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <ClipboardList className="w-4 h-4 text-emerald-700" />
-                      <h3 className="font-extrabold text-stone-900 text-sm sm:text-base">My Food Requests</h3>
-                    </div>
-                    <button
-                      onClick={() => setActiveTab('requests')}
-                      className="text-xs font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>View All</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="border-b border-stone-200 text-[11px] font-bold text-stone-400 uppercase tracking-wider">
-                          <th className="pb-3 pl-2">Food Item</th>
-                          <th className="pb-3">Restaurant</th>
-                          <th className="pb-3">Quantity</th>
-                          <th className="pb-3">Request Date</th>
-                          <th className="pb-3">Status</th>
-                          <th className="pb-3 pr-2 text-right">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-stone-100 text-xs">
-                        {myRequests.map((req) => (
-                          <tr key={req.id} className="hover:bg-stone-50/80 transition-colors">
-                            <td className="py-3.5 pl-2 font-bold text-stone-900 flex items-center gap-2.5">
-                              <img
-                                src={req.image}
-                                alt={req.foodItem}
-                                className="w-9 h-9 rounded-xl object-cover shadow-xs border border-stone-200"
-                              />
-                              <span>{req.foodItem}</span>
-                            </td>
-                            <td className="py-3.5 text-stone-600 font-medium">{req.restaurant}</td>
-                            <td className="py-3.5 font-bold text-stone-900">{req.quantity}</td>
-                            <td className="py-3.5 text-stone-500 font-medium">{req.requestDate}</td>
-                            <td className="py-3.5">
-                              <span
-                                className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                                  req.status === 'Pending'
-                                    ? 'bg-amber-100 text-amber-800 border-amber-200'
-                                    : 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                                }`}
-                              >
-                                {req.status}
-                              </span>
-                            </td>
-                            <td className="py-3.5 pr-2 text-right">
-                              <button
-                                onClick={() => setActiveTab('requests')}
-                                className="px-3 py-1 bg-stone-900 hover:bg-black text-white text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
-                              >
-                                View
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {/* Our Impact Together (Col 8-12) */}
-                <div className="lg:col-span-5 bg-gradient-to-br from-[#072F23] to-[#0A3F2F] rounded-3xl p-6 sm:p-7 text-white shadow-xl border border-emerald-900 flex flex-col justify-between relative overflow-hidden">
+                {/* Left Column (lg:col-span-7): Real-time Ola/Uber GPS Live Tracking & Requests Console */}
+                <div className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/80 shadow-sm space-y-4 flex flex-col justify-between">
                   
-                  {/* Decorative Globe & Hands watermark graphic */}
-                  <div className="absolute -right-6 -bottom-6 w-48 h-48 opacity-15 pointer-events-none">
-                    <svg viewBox="0 0 200 200" fill="currentColor">
-                      <circle cx="100" cy="100" r="80" />
-                      <path d="M60,100 C60,60 140,60 140,100 C140,140 60,140 60,100" fill="#F59E0B" />
-                    </svg>
-                  </div>
+                  {/* Header with Switcher Tabs */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+                        <Car className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-extrabold text-stone-900 text-sm sm:text-base">
+                            Ola / Uber Live Dispatch &amp; Tracking
+                          </h3>
+                          <span className="flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[9px] font-black uppercase px-2 py-0.5 rounded-full border border-emerald-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping" />
+                            Live Ride
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-stone-500 font-medium">
+                          Real-time volunteer fleet navigation &amp; surplus food handover
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="space-y-2 relative z-10">
-                    <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">Our Impact Together</h3>
-                    <p className="text-xs text-emerald-100/80 leading-relaxed max-w-sm">
-                      You've helped in rescuing food and reducing environmental waste.
-                    </p>
-                    <div className="pt-2">
+                    {/* View Switcher Toggle */}
+                    <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl self-start sm:self-auto text-xs font-bold">
                       <button
-                        onClick={() => setActiveTab('analytics')}
-                        className="px-5 py-2.5 rounded-full bg-[#F59E0B] hover:bg-amber-400 text-stone-950 font-black text-xs shadow-md transition-all hover:scale-105 cursor-pointer"
+                        onClick={() => setDashboardBottomTab('tracking')}
+                        className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                          dashboardBottomTab === 'tracking'
+                            ? 'bg-[#0A3F2F] text-white shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
                       >
-                        View Impact Report →
+                        <Navigation className="w-3.5 h-3.5" />
+                        <span>Live Route</span>
+                      </button>
+                      <button
+                        onClick={() => setDashboardBottomTab('requests')}
+                        className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                          dashboardBottomTab === 'requests'
+                            ? 'bg-[#0A3F2F] text-white shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        <ClipboardList className="w-3.5 h-3.5" />
+                        <span>Requests ({myRequests.length})</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* 3 Metrics Row */}
-                  <div className="grid grid-cols-3 gap-3 pt-6 mt-6 border-t border-emerald-800/60 relative z-10">
-                    <div>
-                      <div className="flex items-center gap-1.5 text-amber-400 mb-1">
-                        <Utensils className="w-4 h-4" />
+                  {/* TAB A: REAL OLA/UBER LIVE TRACKING CONSOLE */}
+                  {dashboardBottomTab === 'tracking' ? (
+                    <div className="space-y-4">
+                      
+                      {/* 1. Ola/Uber Driver & Vehicle Banner */}
+                      <div className="bg-gradient-to-r from-stone-900 via-[#1C1917] to-stone-900 text-white rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md border border-stone-800">
+                        <div className="flex items-center gap-3.5">
+                          <div className="relative">
+                            <img
+                              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+                              alt="Rahul Sharma"
+                              className="w-13 h-13 rounded-2xl object-cover border-2 border-[#F59E0B] shadow-md"
+                            />
+                            <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-stone-950 font-black text-[9px] px-1.5 py-0.2 rounded-full border border-stone-900">
+                              ⭐ 4.9
+                            </span>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-extrabold text-sm text-white">Rahul Sharma</h4>
+                              <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+                                Verified Volunteer
+                              </span>
+                            </div>
+                            <p className="text-xs text-stone-300 mt-0.5 font-medium">
+                              White Mahindra Bolero EV Cargo • <span className="font-mono text-amber-300">DL 01 AB 4092</span>
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[10px] text-stone-400">Insulated Cargo: 3.2°C logged</span>
+                              <span className="text-[10px] text-emerald-400 font-bold">• 184 Deliveries</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Handover OTP Pin & ETA (Exactly like Ola/Uber) */}
+                        <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-800">
+                          <div className="bg-[#F59E0B] text-stone-950 px-3 py-1.5 rounded-xl font-black text-xs shadow flex items-center gap-1.5">
+                            <Key className="w-3.5 h-3.5 text-stone-950" />
+                            <span>PICKUP PIN: 5821</span>
+                          </div>
+                          <div className="text-[11px] text-stone-300 mt-1.5 font-semibold text-right">
+                            ETA: <span className="text-white font-bold font-mono">
+                              {Math.max(1, Math.round((1 - trackingProgress) * 12))} mins
+                            </span> ({((1 - trackingProgress) * 4.2).toFixed(1)} km)
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xl sm:text-2xl font-black text-white">1,850</div>
-                      <div className="text-[10px] font-semibold text-emerald-200/80">Meals Rescued</div>
+
+                      {/* 2. Turn-by-Turn In-Ride HUD (Uber navigation bar) */}
+                      <div className="bg-[#0A3F2F] text-white rounded-xl px-4 py-2.5 flex items-center justify-between shadow-sm">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-emerald-500 text-stone-950 flex items-center justify-center font-black">
+                            <Navigation className="w-4 h-4 fill-stone-950" />
+                          </div>
+                          <span className="font-bold text-xs truncate max-w-xs sm:max-w-md">
+                            {trackingProgress < 0.25
+                              ? 'Head East on Clematis St for 400m'
+                              : trackingProgress < 0.55
+                              ? 'In 200m, turn left onto Palm Beach Blvd'
+                              : trackingProgress < 0.85
+                              ? 'Continue straight past Royal Poinciana Way'
+                              : 'Arriving at Hope Foundation Shelter on your right'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs font-mono shrink-0">
+                          <span className="text-emerald-200">
+                            Speed: <span className="font-bold text-white">{isTrackingPlaying ? Math.round(32 + Math.sin(trackingProgress * 18) * 5) : 0} km/h</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 3. Interactive Animated Vector GPS Map */}
+                      <div className="w-full h-64 sm:h-72 rounded-2xl overflow-hidden border border-stone-200 bg-[#E8ECE8] relative shadow-inner">
+                        <svg className="w-full h-full" viewBox="0 0 720 360" preserveAspectRatio="xMidYMid slice">
+                          <defs>
+                            <linearGradient id="dbRoadGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#059669" />
+                              <stop offset="100%" stopColor="#10B981" />
+                            </linearGradient>
+                            <filter id="dbShadow" x="-20%" y="-20%" width="140%" height="140%">
+                              <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.25" />
+                            </filter>
+                          </defs>
+
+                          {/* Background Map Land */}
+                          <rect width="720" height="360" fill="#E4EAE4" />
+
+                          {/* Water Lagoon */}
+                          <path d="M 0,280 Q 240,260 400,310 T 720,290 L 720,360 L 0,360 Z" fill="#CBE1ED" />
+                          <text x="560" y="330" fill="#6B9CB7" fontSize="11" fontWeight="bold">LAKE WORTH LAGOON</text>
+
+                          {/* City Park */}
+                          <rect x="230" y="110" width="140" height="100" rx="14" fill="#D3E4D1" />
+                          <text x="250" y="165" fill="#5F885D" fontSize="10" fontWeight="bold">PALM MEMORIAL PARK</text>
+
+                          {/* City Grid City Blocks */}
+                          <rect x="30" y="20" width="130" height="130" rx="8" fill="#D8DFD8" />
+                          <rect x="30" y="210" width="130" height="50" rx="8" fill="#D8DFD8" />
+                          <rect x="230" y="20" width="140" height="60" rx="8" fill="#D8DFD8" />
+                          <rect x="430" y="20" width="120" height="70" rx="8" fill="#D8DFD8" />
+                          <rect x="430" y="120" width="100" height="90" rx="8" fill="#D8DFD8" />
+                          <rect x="610" y="20" width="90" height="70" rx="8" fill="#D8DFD8" />
+                          <rect x="610" y="160" width="90" height="90" rx="8" fill="#D8DFD8" />
+
+                          {/* Streets */}
+                          <line x1="0" y1="50" x2="720" y2="50" stroke="#FFFFFF" strokeWidth="6" />
+                          <line x1="0" y1="210" x2="720" y2="210" stroke="#FFFFFF" strokeWidth="6" />
+                          <line x1="180" y1="0" x2="180" y2="280" stroke="#FFFFFF" strokeWidth="6" />
+
+                          {/* Active Navigation Route Path */}
+                          <path
+                            d={trackingPathD}
+                            fill="none"
+                            stroke="#10B981"
+                            strokeWidth="10"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            opacity="0.9"
+                          />
+                          <path
+                            d={trackingPathD}
+                            fill="none"
+                            stroke="#FFFFFF"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeDasharray="6 6"
+                          />
+
+                          {/* Pickup Marker (Sunrise Kitchen) */}
+                          <g transform="translate(80, 180)">
+                            <circle r="16" fill="#F59E0B" opacity="0.3" className="animate-ping" />
+                            <circle r="10" fill="#F59E0B" stroke="#FFFFFF" strokeWidth="3" />
+                            <text x="0" y="-16" textAnchor="middle" fill="#1C1917" fontSize="10" fontWeight="900">
+                              PICKUP: SUNRISE KITCHEN
+                            </text>
+                          </g>
+
+                          {/* Dropoff Marker (Hope Foundation) */}
+                          <g transform="translate(640, 120)">
+                            <circle r="12" fill="#0A3F2F" stroke="#FFFFFF" strokeWidth="3" />
+                            <text x="0" y="-16" textAnchor="middle" fill="#0A3F2F" fontSize="10" fontWeight="900">
+                              DROPOFF: HOPE FOUNDATION
+                            </text>
+                          </g>
+
+                          {/* Moving Animated Vehicle (Ola / Uber Car) */}
+                          <g
+                            transform={`translate(${carCoords.x}, ${carCoords.y}) rotate(${carCoords.angle})`}
+                            filter="url(#dbShadow)"
+                          >
+                            <circle r="18" fill="#10B981" opacity="0.2" className="animate-pulse" />
+                            <rect x="-14" y="-8" width="28" height="16" rx="4" fill="#0A3F2F" stroke="#FFFFFF" strokeWidth="2" />
+                            <rect x="5" y="-5" width="4" height="10" rx="1" fill="#F59E0B" />
+                            <circle cx="9" cy="-8" r="2" fill="#FDE047" />
+                            <circle cx="9" cy="8" r="2" fill="#FDE047" />
+                          </g>
+                        </svg>
+
+                        {/* Live Controls Bar on bottom */}
+                        <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md rounded-xl p-2.5 shadow-md border border-stone-200 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setIsTrackingPlaying(!isTrackingPlaying)}
+                              className="p-1.5 rounded-lg bg-[#0A3F2F] text-white hover:bg-black font-bold cursor-pointer"
+                            >
+                              {isTrackingPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                            </button>
+                            <button
+                              onClick={() => {
+                                setTrackingProgress(0);
+                                setIsTrackingPlaying(true);
+                              }}
+                              className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 cursor-pointer"
+                              title="Reset Route"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="text-[11px] font-bold text-stone-700">
+                              Trip Progress: {Math.round(trackingProgress * 100)}%
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-stone-400 font-semibold uppercase">Speed:</span>
+                            {([1, 2, 4] as const).map((spd) => (
+                              <button
+                                key={spd}
+                                onClick={() => setTrackingSpeed(spd)}
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer ${
+                                  trackingSpeed === spd
+                                    ? 'bg-[#F59E0B] text-stone-950 font-black'
+                                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                                }`}
+                              >
+                                {spd}x
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Cargo Specs Under Route */}
+                      <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 text-xs flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Utensils className="w-4 h-4 text-emerald-600" />
+                          <span className="font-semibold text-stone-800">
+                            Carrying: <span className="font-bold">DON-102 (35 Portions Hot Curry &amp; Basmati Rice)</span>
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                          FSSAI Verified
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    /* TAB B: MY FOOD REQUESTS TABLE */
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="border-b border-stone-200 text-[11px] font-bold text-stone-400 uppercase tracking-wider">
+                            <th className="pb-3 pl-2">Food Item</th>
+                            <th className="pb-3">Restaurant</th>
+                            <th className="pb-3">Quantity</th>
+                            <th className="pb-3">Request Date</th>
+                            <th className="pb-3">Status</th>
+                            <th className="pb-3 pr-2 text-right">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-stone-100 text-xs">
+                          {myRequests.map((req) => (
+                            <tr key={req.id} className="hover:bg-stone-50/80 transition-colors">
+                              <td className="py-3.5 pl-2 font-bold text-stone-900 flex items-center gap-2.5">
+                                <img
+                                  src={req.image}
+                                  alt={req.foodItem}
+                                  className="w-9 h-9 rounded-xl object-cover shadow-xs border border-stone-200"
+                                />
+                                <span>{req.foodItem}</span>
+                              </td>
+                              <td className="py-3.5 text-stone-600 font-medium">{req.restaurant}</td>
+                              <td className="py-3.5 font-bold text-stone-900">{req.quantity}</td>
+                              <td className="py-3.5 text-stone-500 font-medium">{req.requestDate}</td>
+                              <td className="py-3.5">
+                                <span
+                                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                                    req.status === 'Pending'
+                                      ? 'bg-amber-100 text-amber-800 border-amber-200'
+                                      : 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                  }`}
+                                >
+                                  {req.status}
+                                </span>
+                              </td>
+                              <td className="py-3.5 pr-2 text-right">
+                                <button
+                                  onClick={() => setActiveTab('requests')}
+                                  className="px-3 py-1 bg-stone-900 hover:bg-black text-white text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
+                                >
+                                  View
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* Right Column (lg:col-span-5): Professional Impact Histogram Graph */}
+                <div className="lg:col-span-5 bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                  
+                  {/* Header with Title & Metric Selector */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-xl bg-[#F59E0B] text-stone-950 font-black">
+                          <BarChart3 className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="font-extrabold text-stone-900 text-sm sm:text-base">
+                            Surplus Impact Histogram
+                          </h3>
+                          <p className="text-[11px] text-stone-500 font-medium">
+                            Weekly redistribution frequency &amp; volume analysis
+                          </p>
+                        </div>
+                      </div>
+
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full">
+                        +24.8% vs Wk 16
+                      </span>
                     </div>
 
-                    <div>
-                      <div className="flex items-center gap-1.5 text-emerald-400 mb-1">
-                        <Leaf className="w-4 h-4" />
-                      </div>
-                      <div className="text-xl sm:text-2xl font-black text-white">520 kg</div>
-                      <div className="text-[10px] font-semibold text-emerald-200/80">Food Saved</div>
+                    {/* Metric Filter Tabs */}
+                    <div className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-xl text-[11px] font-bold">
+                      <button
+                        onClick={() => setHistogramMetric('meals')}
+                        className={`flex-1 py-1 rounded-lg transition-all cursor-pointer text-center ${
+                          histogramMetric === 'meals'
+                            ? 'bg-[#0A3F2F] text-white shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        Meals Rescued
+                      </button>
+                      <button
+                        onClick={() => setHistogramMetric('kg')}
+                        className={`flex-1 py-1 rounded-lg transition-all cursor-pointer text-center ${
+                          histogramMetric === 'kg'
+                            ? 'bg-[#0A3F2F] text-white shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        Weight (kg)
+                      </button>
+                      <button
+                        onClick={() => setHistogramMetric('co2')}
+                        className={`flex-1 py-1 rounded-lg transition-all cursor-pointer text-center ${
+                          histogramMetric === 'co2'
+                            ? 'bg-[#0A3F2F] text-white shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        CO₂ Offset
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* PROFESSIONAL SVG / HTML HISTOGRAM CANVAS */}
+                  <div className="relative pt-4 pb-2 bg-gradient-to-b from-stone-50/80 to-stone-100/40 rounded-2xl p-4 border border-stone-200/80">
+                    
+                    {/* Target Benchmark Line (e.g. 300 meals) */}
+                    <div className="absolute left-9 right-4 top-[38%] border-b border-dashed border-[#F59E0B] z-10 flex items-center justify-end pointer-events-none">
+                      <span className="text-[9px] font-mono font-black text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded -mt-4 border border-amber-300">
+                        Daily Benchmark: 300 {histogramMetric === 'meals' ? 'Meals' : histogramMetric === 'kg' ? 'kg' : 'kg CO₂'}
+                      </span>
                     </div>
 
-                    <div>
-                      <div className="flex items-center gap-1.5 text-teal-300 mb-1">
-                        <Cloud className="w-4 h-4" />
+                    {/* Histogram Grid & Bars */}
+                    <div className="h-52 flex items-end justify-between gap-2 sm:gap-3 pl-8 pr-2 relative">
+                      
+                      {/* Y-Axis Gridlines & Labels */}
+                      <div className="absolute left-1 top-0 bottom-6 flex flex-col justify-between text-[9px] font-mono text-stone-400 font-bold select-none">
+                        <span>500</span>
+                        <span>375</span>
+                        <span>250</span>
+                        <span>125</span>
+                        <span>0</span>
                       </div>
-                      <div className="text-xl sm:text-2xl font-black text-white">720 kg</div>
-                      <div className="text-[10px] font-semibold text-emerald-200/80">CO₂ Avoided</div>
+
+                      {/* 7 Histogram Bars */}
+                      {impactHistogramData.map((bar, idx) => {
+                        const val = histogramMetric === 'meals' ? bar.meals : histogramMetric === 'kg' ? bar.kg * 3.5 : bar.co2 * 2.5;
+                        const heightPct = Math.min(100, Math.max(15, (val / 500) * 100));
+                        const isHovered = hoveredHistogramIndex === idx;
+
+                        return (
+                          <div
+                            key={bar.day}
+                            className="flex-1 flex flex-col items-center h-full justify-end relative group cursor-pointer"
+                            onMouseEnter={() => setHoveredHistogramIndex(idx)}
+                            onMouseLeave={() => setHoveredHistogramIndex(null)}
+                          >
+                            {/* Hover Tooltip Popover */}
+                            {isHovered && (
+                              <div className="absolute -top-16 z-30 bg-[#1C1917] text-white p-2.5 rounded-xl shadow-xl text-left border border-stone-700 whitespace-nowrap animate-in zoom-in-95 pointer-events-none">
+                                <span className="text-[10px] font-bold text-amber-400 block">{bar.label}</span>
+                                <span className="text-xs font-black text-white block">
+                                  {histogramMetric === 'meals'
+                                    ? `${bar.meals} Meals Rescued`
+                                    : histogramMetric === 'kg'
+                                    ? `${bar.kg} kg Recovered`
+                                    : `${bar.co2} kg CO₂ Offset`}
+                                </span>
+                                <span className="text-[9px] text-stone-300 block">Top: {bar.topCat}</span>
+                              </div>
+                            )}
+
+                            {/* Value Label above bar */}
+                            <span className={`text-[10px] font-mono font-bold mb-1 transition-colors ${
+                              isHovered ? 'text-emerald-700 font-black scale-110' : 'text-stone-500'
+                            }`}>
+                              {histogramMetric === 'meals' ? bar.meals : histogramMetric === 'kg' ? bar.kg : bar.co2}
+                            </span>
+
+                            {/* The Histogram Bar */}
+                            <div className="w-full max-w-[34px] rounded-t-xl overflow-hidden bg-stone-200 h-full flex items-end">
+                              <div
+                                className={`w-full rounded-t-xl transition-all duration-300 ${
+                                  isHovered
+                                    ? 'bg-gradient-to-t from-[#0A3F2F] to-[#10B981] shadow-md'
+                                    : idx === 6
+                                    ? 'bg-gradient-to-t from-[#D97706] to-[#F59E0B]'
+                                    : 'bg-gradient-to-t from-[#0A3F2F] to-emerald-600'
+                                }`}
+                                style={{ height: `${heightPct}%` }}
+                              />
+                            </div>
+
+                            {/* Day Label on X-Axis */}
+                            <span className={`text-[11px] font-bold mt-2 transition-colors ${
+                              idx === 6 ? 'text-amber-800 font-black' : isHovered ? 'text-stone-900' : 'text-stone-500'
+                            }`}>
+                              {bar.day}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                  </div>
+
+                  {/* Bottom 3 KPI Metric Badges */}
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-stone-100">
+                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200/70 text-center">
+                      <span className="text-[9px] font-bold text-stone-400 uppercase block">Weekly Total</span>
+                      <span className="text-base font-black text-stone-900">2,315</span>
+                      <span className="text-[9px] text-emerald-700 font-bold block">+18% growth</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200/70 text-center">
+                      <span className="text-[9px] font-bold text-stone-400 uppercase block">Peak Hour</span>
+                      <span className="text-base font-black text-amber-900">1:30 PM</span>
+                      <span className="text-[9px] text-amber-700 font-bold block">Lunch banquet</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200/70 text-center">
+                      <span className="text-[9px] font-bold text-stone-400 uppercase block">Daily Avg</span>
+                      <span className="text-base font-black text-emerald-950">330</span>
+                      <span className="text-[9px] text-teal-700 font-bold block">Meals / day</span>
                     </div>
                   </div>
 
