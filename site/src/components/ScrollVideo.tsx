@@ -91,8 +91,7 @@ export default function ScrollVideo({ progressRef }: ScrollVideoProps) {
 
         if (Math.abs(video.currentTime - targetTime) > 0.015 && !isSeeking) {
           isSeeking = true;
-          if ('fastSeek' in video) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (typeof (video as any).fastSeek === 'function') {
             (video as any).fastSeek(targetTime);
           } else {
             video.currentTime = targetTime;

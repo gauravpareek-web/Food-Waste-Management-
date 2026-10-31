@@ -52,9 +52,9 @@ export default function VelaHero({ onJoinVela }: VelaHeroProps) {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    let enterTimer: NodeJS.Timeout;
-    let leaveTimer: NodeJS.Timeout;
-    let nextTimer: NodeJS.Timeout;
+    let enterTimer: ReturnType<typeof setTimeout> | undefined;
+    let leaveTimer: ReturnType<typeof setTimeout> | undefined;
+    let nextTimer: ReturnType<typeof setTimeout> | undefined;
 
     const runSlot = () => {
       setAnimState('entering');

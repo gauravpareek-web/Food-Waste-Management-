@@ -434,7 +434,7 @@ export default function VelaBot3D() {
     let clock = new THREE.Clock();
 
     let isScrolling = false;
-    let scrollStopTimer: NodeJS.Timeout;
+    let scrollStopTimer: ReturnType<typeof setTimeout> | undefined;
 
     // Roaming patrol state (moves left and right by itself when scroll stops)
     let patrolX = 0;

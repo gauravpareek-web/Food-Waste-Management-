@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   PlusCircle,
@@ -48,12 +48,14 @@ export interface DonationItem {
   quantity: string;
   servings: string;
   category: string;
-  status: 'Available' | 'Claimed' | 'Pickup Pending' | 'Delivered' | 'Expiring Soon';
+  foodCategory?: string;
+  status: 'Available' | 'Claimed' | 'Pickup Pending' | 'Delivered' | 'Expiring Soon' | 'Rejected';
   statusColor: string;
   pickupDate: string;
   pickupSlot: string;
   prepDate: string;
   prepTime: string;
+  preparedAt?: string;
   activeDuration: string;
   expiresAt: string;
   expiryHoursLeft: number;
@@ -62,6 +64,7 @@ export interface DonationItem {
   safeUntil: string;
   packaging: string;
   storage: string;
+  storageCondition?: 'Refrigerated' | 'Room Temperature' | 'Hot Holding';
   storageTemp: string;
   allergens: string;
   dietary: string[];
@@ -69,6 +72,11 @@ export interface DonationItem {
   distance: string;
   claimedBy: string | null;
   fssaiCompliant: boolean;
+  hygieneConfirmed?: boolean;
+  contaminationReported?: boolean;
+  donorDeclaration?: boolean;
+  safetyStatus?: 'verified' | 'pending_review' | 'rejected' | 'expired';
+  safetyReviewNotes?: string;
 }
 
 interface RestaurantDashboardProps {
@@ -110,19 +118,33 @@ export default function RestaurantDashboard({
   // Create Donation Form State
   const [formFoodName, setFormFoodName] = useState('');
   const [formCategory, setFormCategory] = useState('Cooked Meals');
+  const [formFoodCategory, setFormFoodCategory] = useState<'Rice' | 'Roti' | 'Curry' | 'Vegetables' | 'Dairy' | 'Bakery' | 'Packaged Food' | 'Other'>('Curry');
   const [formDescription, setFormDescription] = useState('');
   const [formQuantity, setFormQuantity] = useState('');
   const [formUnit, setFormUnit] = useState('portions');
   const [formServings, setFormServings] = useState('Feeds ~35 adults');
   const [formItemsList, setFormItemsList] = useState('Fresh Rice, Lentil Curry, Mixed Veg, Flatbreads');
+  const [formPreparedAt, setFormPreparedAt] = useState(() => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - 25);
+    return d.toISOString().slice(0, 16);
+  });
   const [formPrepDate, setFormPrepDate] = useState('2026-10-31');
   const [formPrepTime, setFormPrepTime] = useState('11:30 AM');
   const [formShelfLifeHours, setFormShelfLifeHours] = useState('6');
   const [formPickupTime, setFormPickupTime] = useState('12:00 PM - 02:30 PM');
   const [formPackaging, setFormPackaging] = useState('Sealed Food-Grade Containers');
   const [formStorage, setFormStorage] = useState('Hot-held (>65°C)');
+  const [formStorageCondition, setFormStorageCondition] = useState<'Hot Holding' | 'Refrigerated' | 'Room Temperature'>('Hot Holding');
   const [formAllergens, setFormAllergens] = useState('None / Dairy mentioned');
   const [formAddress, setFormAddress] = useState('125 Palm Street, Palm Beach, FL');
+  const [formHygieneConfirmed, setFormHygieneConfirmed] = useState(true);
+  const [formContaminationReported, setFormContaminationReported] = useState(false);
+  const [formDonorDeclaration, setFormDonorDeclaration] = useState(true);
+  const [formImageFile, setFormImageFile] = useState<File | null>(null);
+  const [formImagePreview, setFormImagePreview] = useState<string>('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80');
+  const [formApiError, setFormApiError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmittedToast, setFormSubmittedToast] = useState(false);
 
   // Settings State
@@ -255,64 +277,297 @@ export default function RestaurantDashboard({
     },
   ]);
 
-  // Handle Publishing a New Donation
-  const handlePublishDonation = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formFoodName || !formQuantity) return;
+  // Data: NGO Requests List
+  const [requestsList, setRequestsList] = useState<Array<{
+    id: string;
+    org: string;
+    avatar: string;
+    needs: string;
+    date: string;
+    distance: string;
+    status: 'pending' | 'accepted';
+  }>>([
+    {
+      id: 'REQ-201',
+      org: 'Hope Foundation Shelter',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
+      needs: 'Requested 35 Portions (Paneer Curry & Rice)',
+      date: 'Today • 12:45 PM',
+      distance: '2.5 km away',
+      status: 'pending',
+    },
+    {
+      id: 'REQ-202',
+      org: 'Community Care Kitchen',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
+      needs: 'Requested 15 kg Fresh Vegetables Box',
+      date: 'Today • 11:15 AM',
+      distance: '4.2 km away',
+      status: 'pending',
+    },
+    {
+      id: 'REQ-203',
+      org: 'Palm Beach Youth Shelter',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80',
+      needs: 'Requested 10 boxes Artisan Morning Breads',
+      date: 'Today • 09:30 AM',
+      distance: '6.7 km away',
+      status: 'accepted',
+    },
+  ]);
 
-    const shelfLifeNum = parseFloat(formShelfLifeHours) || 6;
-    const items = formItemsList
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
+  // Data: Notifications List
+  const [notificationsList, setNotificationsList] = useState<Array<{
+    id: string;
+    title: string;
+    desc: string;
+    time: string;
+    color: string;
+  }>>([
+    {
+      id: 'NOTIF-1',
+      title: 'New Food Request Received',
+      desc: 'Hope Foundation submitted a priority pickup request for 35 portions of Paneer Curry & Rice.',
+      time: '10 min ago',
+      color: 'bg-emerald-500',
+    },
+    {
+      id: 'NOTIF-2',
+      title: 'Food Safety Check Verified',
+      desc: 'FSSAI compliant temperature log verified for Fresh Vegetables Box (DON-101).',
+      time: '1 hour ago',
+      color: 'bg-blue-500',
+    },
+    {
+      id: 'NOTIF-3',
+      title: 'Donation Claimed & Driver Dispatched',
+      desc: 'Volunteer Rahul Sharma is on route to collect Artisan Bakery box from your back kitchen dock.',
+      time: '3 hours ago',
+      color: 'bg-amber-500',
+    },
+    {
+      id: 'NOTIF-4',
+      title: 'Tax Exemption Receipt Generated',
+      desc: '80G Certificate for 50kg rescued food has been archived in your History & Reports tab.',
+      time: 'Yesterday',
+      color: 'bg-purple-500',
+    },
+  ]);
 
-    const newDonation: DonationItem = {
-      id: `DON-${Math.floor(100 + Math.random() * 900)}`,
-      title: formFoodName,
-      description: formDescription || 'Fresh surplus food prepared in commercial kitchen under strict hygiene protocols.',
-      itemsList: items.length > 0 ? items : [formFoodName],
-      quantity: `${formQuantity} ${formUnit}`,
-      servings: formServings || `Feeds ~${formQuantity} portions`,
-      category: formCategory,
-      status: 'Available',
-      statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-      pickupDate: formPrepDate,
-      pickupSlot: formPickupTime,
-      prepDate: formPrepDate,
-      prepTime: formPrepTime || 'Just now',
-      activeDuration: 'Just listed (0m)',
-      expiresAt: `In ${shelfLifeNum} hours (${formPrepDate})`,
-      expiryHoursLeft: shelfLifeNum,
-      totalShelfLifeHours: shelfLifeNum,
-      expiryPercent: 5,
-      safeUntil: `Valid for ${shelfLifeNum} hours`,
-      packaging: formPackaging,
-      storage: formStorage,
-      storageTemp: formStorage.includes('Hot') ? '>65°C maintained' : '2-4°C chilled',
-      allergens: formAllergens,
-      dietary: ['Verified Safe Surplus', 'FSSAI Compliant'],
-      image:
-        formCategory === 'Vegetables'
-          ? 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80'
-          : formCategory === 'Bakery'
-          ? 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80'
-          : formCategory === 'Fruits'
-          ? 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80'
-          : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
-      distance: '0.0 km',
-      claimedBy: null,
-      fssaiCompliant: true,
+  // Helper: map API donation to local DonationItem
+  const mapApiDonationToItem = (item: any): DonationItem => {
+    const isRejected = item.safety_status === 'rejected';
+    const isExpired = item.safety_status === 'expired';
+    const isClaimed = item.status === 'claimed';
+
+    return {
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      itemsList: Array.isArray(item.items_list)
+        ? item.items_list
+        : (typeof item.items_list === 'string' ? JSON.parse(item.items_list || '[]') : [item.title]),
+      quantity: item.quantity,
+      servings: item.servings,
+      category: item.food_category || item.category || 'Cooked Meals',
+      foodCategory: item.food_category,
+      status: isRejected ? 'Rejected' : isExpired ? 'Expiring Soon' : isClaimed ? 'Claimed' : 'Available',
+      statusColor: isRejected
+        ? 'bg-red-100 text-red-800 border-red-200'
+        : isExpired
+        ? 'bg-rose-100 text-rose-800 border-rose-200'
+        : isClaimed
+        ? 'bg-blue-100 text-blue-800 border-blue-200'
+        : 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      pickupDate: new Date(item.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      pickupSlot: item.pickup_window || 'Next 2-4 Hours',
+      prepDate: new Date(item.prepared_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      prepTime: new Date(item.prepared_at || Date.now()).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      preparedAt: item.prepared_at,
+      activeDuration: item.active_duration || 'Active',
+      expiresAt: item.expiry_at ? new Date(item.expiry_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'In 6 hours',
+      expiryHoursLeft: typeof item.hours_remaining === 'number' ? item.hours_remaining : (item.shelf_life_hours || 6),
+      totalShelfLifeHours: item.shelf_life_hours || 6,
+      expiryPercent: typeof item.percent_elapsed === 'number' ? item.percent_elapsed : 20,
+      safeUntil: item.expiry_at ? new Date(item.expiry_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Today',
+      packaging: item.packaging || 'Sealed Food-Grade Containers',
+      storage: item.storage_condition || 'Hot Holding',
+      storageCondition: item.storage_condition || 'Hot Holding',
+      storageTemp: item.storage_temp || (item.storage_condition === 'Hot Holding' ? '>65°C maintained' : item.storage_condition === 'Refrigerated' ? '2-4°C chilled' : 'Ambient room temp'),
+      allergens: item.allergens || 'None',
+      dietary: Array.isArray(item.dietary) ? item.dietary : ['FSSAI Compliant'],
+      image: item.food_image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+      distance: item.distance || '2.5 km',
+      claimedBy: item.claimed_by || null,
+      fssaiCompliant: Boolean(item.hygiene_confirmed && !item.contamination_reported && item.safety_status !== 'rejected'),
+      hygieneConfirmed: Boolean(item.hygiene_confirmed),
+      contaminationReported: Boolean(item.contamination_reported),
+      donorDeclaration: Boolean(item.donor_declaration),
+      safetyStatus: item.safety_status,
+      safetyReviewNotes: item.safety_review_notes,
     };
+  };
 
-    setDonationsList([newDonation, ...donationsList]);
-    setFormFoodName('');
-    setFormQuantity('');
-    setFormDescription('');
-    setFormSubmittedToast(true);
-    setTimeout(() => {
-      setFormSubmittedToast(false);
-      setActiveTab('donations');
-    }, 1500);
+  const fetchLiveDonations = async () => {
+    try {
+      const res = await fetch('/api/donations');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const mapped = json.data.map(mapApiDonationToItem);
+          setDonationsList(mapped);
+        }
+      }
+    } catch {
+      // Graceful offline/local mode fallback
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveDonations();
+  }, []);
+
+  // Handle Publishing a New Donation with Food Safety Validation
+  const handlePublishDonation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormApiError(null);
+
+    if (!formFoodName.trim() || !formQuantity) {
+      setFormApiError('Food name and quantity are required.');
+      return;
+    }
+
+    if (!formHygieneConfirmed) {
+      setFormApiError('Food container hygiene confirmation is mandatory under FSSAI rules.');
+      return;
+    }
+
+    if (!formDonorDeclaration) {
+      setFormApiError('Donor declaration confirming food safety accuracy must be agreed to.');
+      return;
+    }
+
+    // Client-side quick check for future prep time
+    const prepDateObj = new Date(formPreparedAt);
+    if (prepDateObj > new Date()) {
+      setFormApiError('Food preparation date/time cannot be in the future.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('title', formFoodName);
+      formData.append('food_category', formFoodCategory);
+      formData.append('description', formDescription || 'Fresh surplus food prepared under commercial hygiene protocols.');
+      formData.append('quantity', `${formQuantity} ${formUnit}`);
+      formData.append('servings', formServings || `Feeds ~${formQuantity} portions`);
+      formData.append('items_list', JSON.stringify(formItemsList.split(',').map((s) => s.trim()).filter(Boolean)));
+      formData.append('prepared_at', prepDateObj.toISOString());
+      formData.append('storage_condition', formStorageCondition);
+      formData.append('storage_temp', formStorageCondition === 'Hot Holding' ? '>65°C maintained' : formStorageCondition === 'Refrigerated' ? '2-4°C chilled' : 'Ambient room temp');
+      formData.append('hygiene_confirmed', formHygieneConfirmed ? 'true' : 'false');
+      formData.append('contamination_reported', formContaminationReported ? 'true' : 'false');
+      formData.append('donor_declaration', formDonorDeclaration ? 'true' : 'false');
+      formData.append('allergens', formAllergens);
+      formData.append('packaging', formPackaging);
+      formData.append('pickup_window', formPickupTime);
+      formData.append('donor_name', user?.name || 'The Green Table Restaurant');
+      formData.append('donor_phone', user?.phone || '+1 (561) 555-0192');
+      formData.append('donor_address', formAddress);
+
+      if (formImageFile) {
+        formData.append('food_image_file', formImageFile);
+      } else {
+        formData.append('image_url', formImagePreview);
+      }
+
+      const res = await fetch('/api/donations', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || !result.success) {
+        setFormApiError(result.message || 'Validation failed. Please verify food safety requirements.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const newItem = mapApiDonationToItem(result.data);
+      setDonationsList((prev) => [newItem, ...prev]);
+      setFormFoodName('');
+      setFormQuantity('');
+      setFormDescription('');
+      setFormSubmittedToast(true);
+      setIsSubmitting(false);
+
+      setTimeout(() => {
+        setFormSubmittedToast(false);
+        setActiveTab('donations');
+      }, 1500);
+    } catch {
+      // Offline fallback
+      if (formContaminationReported) {
+        setFormApiError('Food Safety Violation: Contaminated food cannot be listed for redistribution.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const shelfLifeNum = parseFloat(formShelfLifeHours) || 6;
+      const items = formItemsList.split(',').map((s) => s.trim()).filter(Boolean);
+      const newDonation: DonationItem = {
+        id: `DON-${Math.floor(100 + Math.random() * 900)}`,
+        title: formFoodName,
+        description: formDescription || 'Fresh surplus food prepared under commercial hygiene protocols.',
+        itemsList: items.length > 0 ? items : [formFoodName],
+        quantity: `${formQuantity} ${formUnit}`,
+        servings: formServings || `Feeds ~${formQuantity} portions`,
+        category: formFoodCategory,
+        foodCategory: formFoodCategory,
+        status: 'Available',
+        statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        pickupDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        pickupSlot: formPickupTime,
+        prepDate: prepDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        prepTime: prepDateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        preparedAt: formPreparedAt,
+        activeDuration: 'Just listed (0m)',
+        expiresAt: `In ${shelfLifeNum} hours`,
+        expiryHoursLeft: shelfLifeNum,
+        totalShelfLifeHours: shelfLifeNum,
+        expiryPercent: 0,
+        safeUntil: `Valid for ${shelfLifeNum}h`,
+        packaging: formPackaging,
+        storage: formStorageCondition,
+        storageCondition: formStorageCondition,
+        storageTemp: formStorageCondition === 'Hot Holding' ? '>65°C maintained' : '2-4°C chilled',
+        allergens: formAllergens,
+        dietary: ['Verified Safe Surplus', 'FSSAI Compliant'],
+        image: formImagePreview,
+        distance: '0.0 km',
+        claimedBy: null,
+        fssaiCompliant: true,
+        hygieneConfirmed: formHygieneConfirmed,
+        contaminationReported: formContaminationReported,
+        donorDeclaration: formDonorDeclaration,
+        safetyStatus: 'verified',
+      };
+
+      setDonationsList((prev) => [newDonation, ...prev]);
+      setFormFoodName('');
+      setFormQuantity('');
+      setFormDescription('');
+      setFormSubmittedToast(true);
+      setIsSubmitting(false);
+
+      setTimeout(() => {
+        setFormSubmittedToast(false);
+        setActiveTab('donations');
+      }, 1500);
+    }
   };
 
   // Handle Accepting an NGO Request
@@ -846,14 +1101,24 @@ export default function RestaurantDashboard({
                     Create Donation
                   </h2>
                   <p className="text-xs sm:text-sm text-stone-500 mt-0.5">
-                    Share surplus food and make a difference.
+                    Share surplus food and make a difference with verified food safety compliance.
                   </p>
                 </div>
 
                 {formSubmittedToast && (
                   <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    Donation successfully published and broadcasted to verified NGOs!
+                    Donation successfully published and passed safety checklist verification! Broadcasted to verified NGOs.
+                  </div>
+                )}
+
+                {formApiError && (
+                  <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs font-medium flex items-start gap-2.5 animate-in fade-in">
+                    <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold block text-red-900">Food Safety Verification Failed:</span>
+                      <span>{formApiError}</span>
+                    </div>
                   </div>
                 )}
 
@@ -863,7 +1128,7 @@ export default function RestaurantDashboard({
                     {/* Left Column: Food Details */}
                     <div className="space-y-4">
                       <h4 className="font-bold text-xs uppercase tracking-wider text-stone-400">
-                        Food Details
+                        Food Details &amp; Category
                       </h4>
 
                       <div>
@@ -882,30 +1147,33 @@ export default function RestaurantDashboard({
 
                       <div>
                         <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                          Food Category *
+                          Food Category (Safety Rules Matrix) *
                         </label>
                         <select
-                          value={formCategory}
-                          onChange={(e) => setFormCategory(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:border-[#F59E0B]"
+                          value={formFoodCategory}
+                          onChange={(e) => setFormFoodCategory(e.target.value as any)}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:border-[#F59E0B] font-medium"
                         >
-                          <option value="Cooked Meals">Cooked Meals (Veg / Non-veg)</option>
-                          <option value="Vegetables">Fresh Vegetables Box</option>
-                          <option value="Bakery">Bakery & Breads</option>
-                          <option value="Fruits">Fresh Seasonal Fruits</option>
-                          <option value="Packaged">Packaged Dry Goods</option>
+                          <option value="Curry">Curry (Lentils, Gravies, Paneer, Stews)</option>
+                          <option value="Rice">Rice (Cooked Rice, Biryani, Pulao)</option>
+                          <option value="Roti">Roti (Chapatis, Naan, Flatbreads)</option>
+                          <option value="Vegetables">Vegetables (Cooked / Fresh Produce)</option>
+                          <option value="Dairy">Dairy (Milk, Paneer, Yogurt, Sweets)</option>
+                          <option value="Bakery">Bakery (Bread, Buns, Baked Goods)</option>
+                          <option value="Packaged Food">Packaged Food (Sealed Dry Goods)</option>
+                          <option value="Other">Other Surplus Food</option>
                         </select>
                       </div>
 
                       <div>
                         <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                          Description & Quality Note *
+                          Description &amp; Quality Notes *
                         </label>
                         <textarea
                           rows={2}
                           value={formDescription}
                           onChange={(e) => setFormDescription(e.target.value)}
-                          placeholder="Describe the food, unserved status, temperature checks..."
+                          placeholder="Describe the surplus food, unserved kitchen batch, hygiene checks..."
                           className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
                         />
                       </div>
@@ -950,23 +1218,45 @@ export default function RestaurantDashboard({
                         </div>
                       </div>
 
-                      {/* Upload Photo Dropzone */}
+                      {/* Upload Photo Dropzone with Preview */}
                       <div>
                         <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                          Upload Food Image
+                          Food Photograph (Mandatory Verification) *
                         </label>
-                        <div className="border-2 border-dashed border-stone-200 rounded-2xl p-4 text-center hover:border-[#F59E0B] transition-colors cursor-pointer bg-stone-50">
-                          <Upload className="w-6 h-6 text-stone-400 mx-auto mb-1.5" />
-                          <p className="text-xs font-semibold text-stone-700">Click to upload or drag and drop</p>
-                          <p className="text-[10px] text-stone-400">PNG, JPG (Max 5MB)</p>
+                        <div className="flex items-center gap-3">
+                          {formImagePreview && (
+                            <img
+                              src={formImagePreview}
+                              alt="Preview"
+                              className="w-16 h-16 rounded-xl object-cover border border-stone-300 shrink-0"
+                            />
+                          )}
+                          <label className="flex-1 border-2 border-dashed border-stone-200 rounded-2xl p-3 text-center hover:border-[#F59E0B] transition-colors cursor-pointer bg-stone-50 block">
+                            <Upload className="w-5 h-5 text-stone-400 mx-auto mb-1" />
+                            <p className="text-xs font-semibold text-stone-700">Choose Food Photograph</p>
+                            <p className="text-[10px] text-stone-400">JPG, PNG, WebP up to 5MB</p>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setFormImageFile(file);
+                                  const url = URL.createObjectURL(file);
+                                  setFormImagePreview(url);
+                                }
+                              }}
+                            />
+                          </label>
                         </div>
                       </div>
                     </div>
 
-                    {/* Right Column: Quantity & Expiry / Pickup Details */}
+                    {/* Right Column: Quantity, Storage & Pickup Details */}
                     <div className="space-y-4">
                       <h4 className="font-bold text-xs uppercase tracking-wider text-stone-400">
-                        Expiry, Timing & Pickup Details
+                        Logistics, Packaging &amp; Storage
                       </h4>
 
                       <div className="grid grid-cols-2 gap-3">
@@ -1000,55 +1290,39 @@ export default function RestaurantDashboard({
                         </div>
                       </div>
 
-                      {/* Timing & Expiry Period */}
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-semibold text-stone-700 mb-1.5 flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-stone-400" />
-                            Cooked / Prep Time *
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                            Storage Condition *
+                          </label>
+                          <select
+                            value={formStorageCondition}
+                            onChange={(e) => setFormStorageCondition(e.target.value as any)}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:border-[#F59E0B]"
+                          >
+                            <option value="Hot Holding">Hot Holding (&gt;65°C / 149°F)</option>
+                            <option value="Refrigerated">Refrigerated (2°C - 4°C)</option>
+                            <option value="Room Temperature">Room Temperature (Ambient)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                            Packaging Container *
                           </label>
                           <input
                             type="text"
-                            value={formPrepTime}
-                            onChange={(e) => setFormPrepTime(e.target.value)}
-                            placeholder="e.g. 11:30 AM"
+                            value={formPackaging}
+                            onChange={(e) => setFormPackaging(e.target.value)}
+                            placeholder="e.g. Sealed Food-Grade Containers"
                             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
                           />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-stone-700 mb-1.5 flex items-center gap-1">
-                            <Timer className="w-3.5 h-3.5 text-amber-500" />
-                            Safe Expiry Window *
-                          </label>
-                          <select
-                            value={formShelfLifeHours}
-                            onChange={(e) => setFormShelfLifeHours(e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:border-[#F59E0B]"
-                          >
-                            <option value="4">4 Hours (Hot Cooked Food)</option>
-                            <option value="6">6 Hours (Standard Cooked)</option>
-                            <option value="12">12 Hours (Chilled)</option>
-                            <option value="24">24 Hours (Bakery / Raw Produce)</option>
-                            <option value="48">48 Hours (Packaged / Ambient)</option>
-                          </select>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                            Preparation Date *
-                          </label>
-                          <input
-                            type="date"
-                            value={formPrepDate}
-                            onChange={(e) => setFormPrepDate(e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                            Pickup Time Slot *
+                            Pickup Window *
                           </label>
                           <input
                             type="text"
@@ -1058,32 +1332,14 @@ export default function RestaurantDashboard({
                             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
                           />
                         </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                            Storage Condition *
-                          </label>
-                          <select
-                            value={formStorage}
-                            onChange={(e) => setFormStorage(e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 bg-white focus:outline-none focus:border-[#F59E0B]"
-                          >
-                            <option value="Hot-held (>65°C)">Hot-held (&gt;65°C)</option>
-                            <option value="Refrigerated (2-4°C)">Refrigerated (2-4°C)</option>
-                            <option value="Dry Room Temp">Dry Ambient / Room Temp</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                            Packaging Container
+                            Preparation Date *
                           </label>
                           <input
-                            type="text"
-                            value={formPackaging}
-                            onChange={(e) => setFormPackaging(e.target.value)}
-                            placeholder="e.g. Sealed Food-Grade Stainless"
+                            type="date"
+                            value={formPrepDate}
+                            onChange={(e) => setFormPrepDate(e.target.value)}
                             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm text-stone-900 focus:outline-none focus:border-[#F59E0B]"
                           />
                         </div>
@@ -1104,6 +1360,117 @@ export default function RestaurantDashboard({
 
                   </div>
 
+                  {/* ======================================================== */}
+                  {/* MANDATORY FOOD SAFETY & HYGIENE CHECKLIST (PROMPT 1)     */}
+                  {/* ======================================================== */}
+                  <div className="p-5 sm:p-6 rounded-2xl border-2 border-emerald-600/30 bg-emerald-50/40 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-emerald-600 text-white">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-sm text-emerald-950">
+                          Mandatory Food Safety &amp; Hygiene Checklist
+                        </h4>
+                        <p className="text-[11px] text-emerald-800">
+                          FSSAI Surplus Food Regulations compliance verification before redistribution broadcast
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                      {/* 1. Exact Prep Date & Time (Cannot be in future) */}
+                      <div className="bg-white p-3.5 rounded-xl border border-emerald-200">
+                        <label className="block text-xs font-bold text-stone-800 mb-1 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                            Preparation Date &amp; Time *
+                          </span>
+                          <span className="text-[10px] text-stone-500 font-normal">Past only (No future)</span>
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={formPreparedAt}
+                          max={new Date().toISOString().slice(0, 16)}
+                          onChange={(e) => setFormPreparedAt(e.target.value)}
+                          required
+                          className="w-full px-3 py-2 rounded-lg border border-stone-200 text-xs font-medium text-stone-900 focus:outline-none focus:border-emerald-600 bg-stone-50"
+                        />
+                        <p className="text-[10px] text-stone-500 mt-1">
+                          Expiry countdown calculated dynamically based on food category rules.
+                        </p>
+                      </div>
+
+                      {/* 2. Container Hygiene Confirmation */}
+                      <div className="bg-white p-3.5 rounded-xl border border-emerald-200 flex flex-col justify-between">
+                        <label className="flex items-start gap-2.5 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formHygieneConfirmed}
+                            onChange={(e) => setFormHygieneConfirmed(e.target.checked)}
+                            className="w-4 h-4 mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-stone-900 block">
+                              Food Container Hygiene Confirmation *
+                            </span>
+                            <span className="text-[11px] text-stone-600">
+                              I confirm all containers, vessels, and packages used are sanitized, food-grade, and properly sealed.
+                            </span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* 3. Contamination Screening */}
+                    <div className={`p-3.5 rounded-xl border transition-colors ${
+                      formContaminationReported ? 'bg-red-50 border-red-300' : 'bg-white border-emerald-200'
+                    }`}>
+                      <label className="flex items-start gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formContaminationReported}
+                          onChange={(e) => setFormContaminationReported(e.target.checked)}
+                          className="w-4 h-4 mt-0.5 rounded text-red-600 focus:ring-red-500 cursor-pointer"
+                        />
+                        <div>
+                          <span className={`text-xs font-bold block ${
+                            formContaminationReported ? 'text-red-900' : 'text-stone-900'
+                          }`}>
+                            Contamination / Temperature Abuse Exposure
+                          </span>
+                          <span className={`text-[11px] block mt-0.5 ${
+                            formContaminationReported ? 'text-red-700 font-semibold' : 'text-stone-600'
+                          }`}>
+                            {formContaminationReported
+                              ? '⚠️ WARNING: Food exposed to contamination cannot be accepted for human consumption. Submission will be rejected.'
+                              : 'Check this box ONLY if this food has been exposed to dust, unwashed contact, insects, or temperature danger zones.'}
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+
+                    {/* 4. Donor Declaration */}
+                    <div className="bg-white p-3.5 rounded-xl border border-emerald-200">
+                      <label className="flex items-start gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formDonorDeclaration}
+                          onChange={(e) => setFormDonorDeclaration(e.target.checked)}
+                          className="w-4 h-4 mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                        />
+                        <div>
+                          <span className="text-xs font-bold text-stone-900 block">
+                            Donor Food Safety Declaration *
+                          </span>
+                          <span className="text-[11px] text-stone-600">
+                            I solemnly declare that the surplus food listed above was prepared under hygienic commercial kitchen conditions, has not been served to customers, and complies with FSSAI Surplus Food Regulations.
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
                   {/* Action Buttons */}
                   <div className="flex items-center justify-end gap-3 pt-6 border-t border-stone-200">
                     <button
@@ -1111,13 +1478,21 @@ export default function RestaurantDashboard({
                       onClick={() => setActiveTab('donations')}
                       className="px-5 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-semibold text-xs hover:bg-stone-50 cursor-pointer"
                     >
-                      Save Draft
+                      Cancel / View Donations
                     </button>
                     <button
                       type="submit"
-                      className="px-7 py-2.5 rounded-xl bg-[#F59E0B] text-stone-950 font-bold text-xs hover:bg-[#D97706] shadow transition-all cursor-pointer"
+                      disabled={isSubmitting}
+                      className="px-7 py-2.5 rounded-xl bg-[#F59E0B] text-stone-950 font-bold text-xs hover:bg-[#D97706] shadow transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50"
                     >
-                      Publish Donation
+                      {isSubmitting ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Verifying Safety &amp; Publishing...</span>
+                        </>
+                      ) : (
+                        <span>Publish Donation with Safety Verification</span>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -1223,11 +1598,26 @@ export default function RestaurantDashboard({
                             <td className="px-6 py-4 text-stone-700 font-semibold">{item.quantity}</td>
                             <td className="px-6 py-4 text-stone-600">{item.category}</td>
                             <td className="px-6 py-4">
-                              <span
-                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${item.statusColor}`}
-                              >
-                                {item.status}
-                              </span>
+                              <div className="flex flex-col gap-1">
+                                <span
+                                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border inline-block w-fit ${item.statusColor}`}
+                                >
+                                  {item.status}
+                                </span>
+                                {item.safetyStatus === 'rejected' ? (
+                                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-red-100 text-red-800 border border-red-200 w-fit">
+                                    ✗ Safety Rejected
+                                  </span>
+                                ) : item.safetyStatus === 'pending_review' ? (
+                                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-100 text-amber-800 border border-amber-200 w-fit">
+                                    ⏳ Pending Review
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-800 border border-emerald-200 w-fit">
+                                    ✓ Verified Safe
+                                  </span>
+                                )}
+                              </div>
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex flex-col gap-1">

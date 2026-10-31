@@ -78,8 +78,8 @@ export interface FoodItem {
   servings: string;
   pickupTime: string;
   date: string;
-  status: 'Available' | 'Expiring Soon' | 'Claimed';
-  category: 'Vegetables' | 'Cooked Meals' | 'Fruits' | 'Bakery';
+  status: 'Available' | 'Expiring Soon' | 'Claimed' | 'Rejected';
+  category: string;
   image: string;
   storage: string;
   storageTemp: string;
@@ -89,6 +89,7 @@ export interface FoodItem {
   itemsList: string[];
   description: string;
   prepTime: string;
+  preparedAt?: string;
   activeDuration: string;
   expiresAt: string;
   expiryHoursLeft: number;
@@ -97,6 +98,11 @@ export interface FoodItem {
   donorPhone: string;
   donorAddress: string;
   fssaiCertified: boolean;
+  safetyStatus?: 'verified' | 'pending_review' | 'rejected' | 'expired';
+  safetyReviewNotes?: string;
+  storageCondition?: string;
+  hygieneConfirmed?: boolean;
+  contaminationReported?: boolean;
 }
 
 export default function NgoDashboard({
@@ -118,6 +124,10 @@ export default function NgoDashboard({
   const [claimQuantity, setClaimQuantity] = useState('Full Surplus');
   const [claimBeneficiary, setClaimBeneficiary] = useState('West Palm Beach Community Shelter');
   const [claimNotes, setClaimNotes] = useState('');
+  const [showRejectInput, setShowRejectInput] = useState(false);
+  const [rejectReasonText, setRejectReasonText] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
 
   // Sample Food Surplus Donated by Local Palm Beach Restaurants
   const [availableFood, setAvailableFood] = useState<FoodItem[]>([
@@ -318,6 +328,67 @@ export default function NgoDashboard({
     },
   ]);
 
+  const mapApiDonationToFoodItem = (item: any): FoodItem => {
+    const isRejected = item.safety_status === 'rejected';
+    const isExpired = item.safety_status === 'expired';
+    const isClaimed = item.status === 'claimed';
+
+    return {
+      id: item.id,
+      title: item.title,
+      restaurant: item.donor_name || 'Verified Restaurant Donor',
+      distance: item.distance || '2.5 km',
+      quantity: item.quantity,
+      servings: item.servings || `Feeds ~${item.quantity}`,
+      pickupTime: item.pickup_window || 'Today 2:00 PM',
+      date: new Date(item.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      status: isRejected ? 'Rejected' : isExpired ? 'Expiring Soon' : isClaimed ? 'Claimed' : (item.hours_remaining && item.hours_remaining <= 4 ? 'Expiring Soon' : 'Available'),
+      category: item.food_category || item.category || 'Cooked Meals',
+      image: item.food_image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+      storage: item.storage_condition || 'Hot-held (>65°C)',
+      storageCondition: item.storage_condition || 'Hot-held (>65°C)',
+      storageTemp: item.storage_temp || (item.storage_condition === 'Hot Holding' ? '>65°C maintained' : item.storage_condition === 'Refrigerated' ? '2-4°C chilled' : 'Ambient room temp'),
+      packaging: item.packaging || 'Sealed Food-Grade Containers',
+      allergens: item.allergens || 'None',
+      dietary: Array.isArray(item.dietary) ? item.dietary : ['FSSAI Compliant'],
+      itemsList: Array.isArray(item.items_list) ? item.items_list : (typeof item.items_list === 'string' ? JSON.parse(item.items_list || '[]') : [item.title]),
+      description: item.description || 'Surplus meal batch prepared under commercial hygiene protocols.',
+      prepTime: item.prepared_at ? new Date(item.prepared_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '11:30 AM',
+      preparedAt: item.prepared_at,
+      activeDuration: item.active_duration || 'Active',
+      expiresAt: item.expiry_at ? new Date(item.expiry_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'In 6 hours',
+      expiryHoursLeft: typeof item.hours_remaining === 'number' ? item.hours_remaining : (item.shelf_life_hours || 6),
+      totalShelfLifeHours: item.shelf_life_hours || 6,
+      expiryPercent: typeof item.percent_elapsed === 'number' ? item.percent_elapsed : 20,
+      donorPhone: item.donor_phone || '+1 (561) 555-0192',
+      donorAddress: item.donor_address || '125 Palm Street, Palm Beach, FL',
+      fssaiCertified: Boolean(item.hygiene_confirmed && !item.contamination_reported && item.safety_status !== 'rejected'),
+      safetyStatus: item.safety_status,
+      safetyReviewNotes: item.safety_review_notes,
+      hygieneConfirmed: Boolean(item.hygiene_confirmed),
+      contaminationReported: Boolean(item.contamination_reported),
+    };
+  };
+
+  const fetchLiveFood = async () => {
+    try {
+      const res = await fetch('/api/donations');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const mapped = json.data.map(mapApiDonationToFoodItem);
+          setAvailableFood(mapped);
+        }
+      }
+    } catch {
+      // Offline fallback
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveFood();
+  }, []);
+
   // Filter food items based on category and search query
   const filteredFood = availableFood.filter((item) => {
     const matchesCategory = categoryFilter === 'All' || item.category === categoryFilter;
@@ -327,9 +398,25 @@ export default function NgoDashboard({
     return matchesCategory && matchesSearch;
   });
 
-  const handleClaimSubmit = (e: React.FormEvent) => {
+  const handleClaimSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedItemForClaim) return;
+    setIsClaiming(true);
+
+    try {
+      await fetch(`/api/donations/${selectedItemForClaim.id}/claim`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          claimed_by: user?.name || 'Hope Foundation',
+          ngo_phone: user?.phone || '+1 (561) 555-0144',
+          driver_name: 'Rahul Sharma (Volunteer Fleet)',
+          notes: `${claimBeneficiary} • ${claimNotes}`,
+        }),
+      });
+    } catch {
+      // Offline fallback
+    }
 
     // Add to My Requests
     const newReq = {
@@ -338,17 +425,64 @@ export default function NgoDashboard({
       image: selectedItemForClaim.image,
       restaurant: selectedItemForClaim.restaurant,
       quantity: selectedItemForClaim.quantity,
-      requestDate: 'Apr 27, 2025',
+      requestDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       status: 'Pending' as const,
       pickupWindow: selectedItemForClaim.pickupTime,
     };
 
     setMyRequests([newReq, ...myRequests]);
+    setAvailableFood((prev) =>
+      prev.map((f) => (f.id === selectedItemForClaim.id ? { ...f, status: 'Claimed' } : f))
+    );
 
-    // Show temporary confirmation
-    setClaimSuccessMessage(`Claim request sent for ${selectedItemForClaim.title}! Restaurant notified.`);
+    setClaimSuccessMessage(`Claim confirmed for ${selectedItemForClaim.title}! Driver Rahul Sharma dispatched.`);
     setTimeout(() => setClaimSuccessMessage(null), 4000);
 
+    setIsClaiming(false);
+    setSelectedItemForClaim(null);
+  };
+
+  const handleRejectSafetyConcern = async () => {
+    if (!selectedItemForClaim) return;
+    if (!rejectReasonText.trim()) {
+      alert('Please state the food safety concern or contamination report.');
+      return;
+    }
+
+    setIsRejecting(true);
+    try {
+      await fetch(`/api/donations/${selectedItemForClaim.id}/safety-review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reject',
+          notes: rejectReasonText.trim(),
+          reviewer_name: user?.name || 'Priya Sharma (Hope Foundation)',
+          reviewer_role: 'ngo',
+        }),
+      });
+    } catch {
+      // Offline fallback
+    }
+
+    setAvailableFood((prev) =>
+      prev.map((f) =>
+        f.id === selectedItemForClaim.id
+          ? {
+              ...f,
+              status: 'Rejected',
+              safetyStatus: 'rejected',
+              safetyReviewNotes: rejectReasonText.trim(),
+            }
+          : f
+      )
+    );
+
+    setClaimSuccessMessage(`Safety concern recorded. Batch ${selectedItemForClaim.id} rejected and quarantined.`);
+    setTimeout(() => setClaimSuccessMessage(null), 4000);
+    setIsRejecting(false);
+    setShowRejectInput(false);
+    setRejectReasonText('');
     setSelectedItemForClaim(null);
   };
 
@@ -1360,15 +1494,26 @@ export default function NgoDashboard({
                           alt={food.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                        <span
-                          className={`absolute top-3 right-3 px-3 py-1 rounded-full text-[11px] font-bold shadow-md ${
-                            food.status === 'Expiring Soon'
-                              ? 'bg-amber-500 text-stone-950'
-                              : 'bg-emerald-600 text-white'
-                          }`}
-                        >
-                          {food.status}
-                        </span>
+                        <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+                          <span
+                            className={`px-3 py-1 rounded-full text-[11px] font-bold shadow-md ${
+                              food.status === 'Rejected' || food.safetyStatus === 'rejected'
+                                ? 'bg-red-600 text-white'
+                                : food.status === 'Expiring Soon'
+                                ? 'bg-amber-500 text-stone-950'
+                                : 'bg-emerald-600 text-white'
+                            }`}
+                          >
+                            {food.status}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-white/95 text-stone-900 shadow-xs border border-stone-200">
+                            {food.safetyStatus === 'rejected'
+                              ? '✗ Quarantined'
+                              : food.safetyStatus === 'pending_review'
+                              ? '⏳ Review Required'
+                              : '✓ Safe Checklist'}
+                          </span>
+                        </div>
                         <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-white text-[11px] font-bold flex items-center gap-1">
                           <MapPin className="w-3 h-3 text-[#F59E0B]" />
                           <span>{food.distance} away</span>
@@ -2173,6 +2318,210 @@ export default function NgoDashboard({
             </div>
           )}
 
+          {/* ======================================================== */}
+          {/* TAB 9: DISTRIBUTION CENTERS & NETWORK                    */}
+          {/* ======================================================== */}
+          {activeTab === 'distribution' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+                    Meal Distribution &amp; Beneficiary Centers
+                  </h2>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Live schedule of verified shelters, soup kitchens, and families receiving surplus food.
+                  </p>
+                </div>
+                <button
+                  onClick={() => alert('New distribution log entry created!')}
+                  className="px-4 py-2 bg-[#0A3F2F] hover:bg-black text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer self-start sm:self-auto"
+                >
+                  + Log Meal Distribution
+                </button>
+              </div>
+
+              {/* Stat Highlights */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-2xs">
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Active Centers</span>
+                  <span className="text-2xl font-black text-stone-900 mt-1 block">4 Centers</span>
+                  <span className="text-[11px] text-emerald-700 mt-0.5 font-semibold">100% operational capacity</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-2xs">
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Daily Beneficiaries</span>
+                  <span className="text-2xl font-black text-stone-900 mt-1 block">430 People</span>
+                  <span className="text-[11px] text-amber-700 mt-0.5 font-semibold">Nutritious meals provided</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-2xs">
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Active Fleet</span>
+                  <span className="text-2xl font-black text-stone-900 mt-1 block">3 Vans On Route</span>
+                  <span className="text-[11px] text-teal-700 mt-0.5 font-semibold">Insulated temperature cargo</span>
+                </div>
+              </div>
+
+              {/* Distribution Centers Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-bold text-sm text-stone-900">West Palm Beach Youth Shelter</h4>
+                      <p className="text-xs text-stone-500">220 5th Street, West Palm Beach, FL</p>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      Delivered &amp; Fed
+                    </span>
+                  </div>
+                  <div className="text-xs text-stone-700 space-y-1 bg-stone-50 p-3 rounded-xl border border-stone-100">
+                    <p><span className="font-semibold">Beneficiary Count:</span> 120 Children &amp; Youths</p>
+                    <p><span className="font-semibold">Allocated Surplus:</span> 35 portions Hot Paneer Curry &amp; Rice</p>
+                    <p><span className="font-semibold">Drop Window:</span> Today • 12:45 PM (Completed)</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-bold text-sm text-stone-900">St. Ann Place Day Shelter</h4>
+                      <p className="text-xs text-stone-500">2107 N Dixie Hwy, West Palm Beach, FL</p>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-200">
+                      Driver En Route
+                    </span>
+                  </div>
+                  <div className="text-xs text-stone-700 space-y-1 bg-stone-50 p-3 rounded-xl border border-stone-100">
+                    <p><span className="font-semibold">Beneficiary Count:</span> 85 Unhoused Adults</p>
+                    <p><span className="font-semibold">Allocated Surplus:</span> 15 kg Fresh Vegetables &amp; Bread</p>
+                    <p><span className="font-semibold">Drop Window:</span> Today • 01:30 PM (Volunteer Rahul)</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-bold text-sm text-stone-900">Palm Beach Senior Living Care</h4>
+                      <p className="text-xs text-stone-500">450 Flagler Dr, West Palm Beach, FL</p>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-800 border border-blue-200">
+                      Scheduled Drop
+                    </span>
+                  </div>
+                  <div className="text-xs text-stone-700 space-y-1 bg-stone-50 p-3 rounded-xl border border-stone-100">
+                    <p><span className="font-semibold">Beneficiary Count:</span> 65 Seniors</p>
+                    <p><span className="font-semibold">Allocated Surplus:</span> 8 kg Fresh Seasonal Fruit Crates</p>
+                    <p><span className="font-semibold">Drop Window:</span> Today • 03:30 PM</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-bold text-sm text-stone-900">Community Food Pantry Hub</h4>
+                      <p className="text-xs text-stone-500">700 Palm Beach Lakes Blvd, FL</p>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      Active Stocking
+                    </span>
+                  </div>
+                  <div className="text-xs text-stone-700 space-y-1 bg-stone-50 p-3 rounded-xl border border-stone-100">
+                    <p><span className="font-semibold">Capacity:</span> 250 kg Cold Storage</p>
+                    <p><span className="font-semibold">Allocated Surplus:</span> Bakery Sourdough &amp; Pantry Dry Goods</p>
+                    <p><span className="font-semibold">Drop Window:</span> Daily Stocking from 09:00 AM</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* TAB 10: AUDIT LOG & REDISTRIBUTION HISTORY               */}
+          {/* ======================================================== */}
+          {activeTab === 'history' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+                    Redistribution History &amp; Safety Audit Trail
+                  </h2>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Immutable FSSAI compliance log of all rescued food batches and temperature verification records.
+                  </p>
+                </div>
+                <button
+                  onClick={() => alert('Tax Exemption & FSSAI Audit Certificate exported as PDF!')}
+                  className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Export Compliance Certificate
+                </button>
+              </div>
+
+              <div className="bg-white rounded-3xl border border-stone-200 shadow-2xs overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-stone-50 border-b border-stone-200 text-stone-500 uppercase font-semibold text-[10px]">
+                      <tr>
+                        <th className="px-5 py-3.5">Batch ID &amp; Item</th>
+                        <th className="px-5 py-3.5">Donor Restaurant</th>
+                        <th className="px-5 py-3.5">Quantity</th>
+                        <th className="px-5 py-3.5">Safety Verification</th>
+                        <th className="px-5 py-3.5">Recipient Center</th>
+                        <th className="px-5 py-3.5">Date Completed</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-100 font-medium text-stone-700">
+                      <tr className="hover:bg-stone-50/70 transition-colors">
+                        <td className="px-5 py-3.5">
+                          <span className="font-bold text-stone-900 block">DON-101 • Fresh Veg Box</span>
+                          <span className="text-[10px] text-stone-400">Vegetables • Farm Fresh</span>
+                        </td>
+                        <td className="px-5 py-3.5 font-semibold text-emerald-800">The Green Table Restaurant</td>
+                        <td className="px-5 py-3.5 font-bold">15 kg (Feeds 45)</td>
+                        <td className="px-5 py-3.5">
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 inline-block">
+                            ✓ FSSAI Passed (3.2°C logged)
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">St. Ann Place Day Shelter</td>
+                        <td className="px-5 py-3.5 text-stone-400 text-[11px]">Apr 27, 2026</td>
+                      </tr>
+
+                      <tr className="hover:bg-stone-50/70 transition-colors">
+                        <td className="px-5 py-3.5">
+                          <span className="font-bold text-stone-900 block">DON-102 • Paneer Curry &amp; Rice</span>
+                          <span className="text-[10px] text-stone-400">Curry • Hot Steam Pans</span>
+                        </td>
+                        <td className="px-5 py-3.5 font-semibold text-emerald-800">The Green Table Restaurant</td>
+                        <td className="px-5 py-3.5 font-bold">35 Portions</td>
+                        <td className="px-5 py-3.5">
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 inline-block">
+                            ✓ FSSAI Passed (&gt;65°C verified)
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">West Palm Beach Youth Shelter</td>
+                        <td className="px-5 py-3.5 text-stone-400 text-[11px]">Apr 27, 2026</td>
+                      </tr>
+
+                      <tr className="hover:bg-stone-50/70 transition-colors">
+                        <td className="px-5 py-3.5">
+                          <span className="font-bold text-stone-900 block">DON-103 • Artisan Sourdough</span>
+                          <span className="text-[10px] text-stone-400">Bakery • Fresh Morning Bake</span>
+                        </td>
+                        <td className="px-5 py-3.5 font-semibold text-emerald-800">Sunrise Kitchen</td>
+                        <td className="px-5 py-3.5 font-bold">10 Boxes</td>
+                        <td className="px-5 py-3.5">
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 inline-block">
+                            ✓ FSSAI Passed (Sealed Kraft Bags)
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">Community Care Food Pantry</td>
+                        <td className="px-5 py-3.5 text-stone-400 text-[11px]">Apr 26, 2026</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
         </main>
 
         {/* ======================================================== */}
@@ -2548,21 +2897,77 @@ export default function NgoDashboard({
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setSelectedItemForClaim(null)}
-                  className="px-4 py-2 rounded-xl text-stone-600 text-xs font-bold hover:bg-stone-100 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#0A3F2F] hover:bg-black text-white text-xs font-bold shadow-md hover:scale-105 transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <span>Confirm &amp; Dispatch Volunteer</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#F59E0B]" />
-                </button>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-stone-200">
+                {/* Safety Rejection Trigger */}
+                <div>
+                  {!showRejectInput ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowRejectInput(true)}
+                      className="text-xs font-bold text-red-600 hover:text-red-800 flex items-center gap-1.5 cursor-pointer py-1"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <span>Report Safety Concern / Reject Batch</span>
+                    </button>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 space-y-2 max-w-sm">
+                      <span className="text-[11px] font-bold text-red-900 block">
+                        Reason for Food Safety Rejection:
+                      </span>
+                      <input
+                        type="text"
+                        value={rejectReasonText}
+                        onChange={(e) => setRejectReasonText(e.target.value)}
+                        placeholder="e.g. Temperature danger zone / damaged seal"
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-red-300 text-xs bg-white focus:outline-none focus:border-red-500"
+                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={isRejecting}
+                          onClick={handleRejectSafetyConcern}
+                          className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs cursor-pointer disabled:opacity-50"
+                        >
+                          {isRejecting ? 'Rejecting...' : 'Confirm Safety Rejection'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowRejectInput(false);
+                            setRejectReasonText('');
+                          }}
+                          className="text-xs text-stone-500 hover:text-stone-800 font-semibold cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedItemForClaim(null)}
+                    className="px-4 py-2 rounded-xl text-stone-600 text-xs font-bold hover:bg-stone-100 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isClaiming || selectedItemForClaim.status === 'Rejected' || selectedItemForClaim.safetyStatus === 'rejected'}
+                    className="px-6 py-2.5 rounded-xl bg-[#0A3F2F] hover:bg-black text-white text-xs font-bold shadow-md hover:scale-105 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+                  >
+                    {isClaiming ? (
+                      <span>Dispatching Volunteer...</span>
+                    ) : (
+                      <>
+                        <span>Confirm &amp; Dispatch Volunteer</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-[#F59E0B]" />
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </form>
 
